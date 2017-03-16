@@ -8,16 +8,17 @@ class MonascaMonitor:
 
     def __init__(self):
         config = ConfigParser.RawConfigParser()
-        config.read('server.cfg')
+        config.read('monitor.cfg')
 
-        self.monasca_endpoint = config.get('monasca', 'monasca_endpoint')
         self.monasca_username = config.get('monasca', 'username')
         self.monasca_password = config.get('monasca', 'password')
         self.monasca_auth_url = config.get('monasca', 'auth_url')
         self.monasca_project_name = config.get('monasca', 'project_name')
         self.monasca_api_version = config.get('monasca', 'api_version')
 
-    def get_measurements(self, metric_name, dimensions):
+        self._get_monasca_client()
+
+    def get_measurements(self, metric_name, dimensions, start_time='2014-01-01T00:00:00Z'):
         measurements = []
         try:
             monasca_client = self._get_monasca_client()
@@ -25,7 +26,7 @@ class MonascaMonitor:
                           'service': dimensions['service']}
             measurements = monasca_client.metrics.list_measurements(
                 name=metric_name, dimensions=dimensions,
-                start_time='2014-01-01T00:00:00Z', debug=False)
+                start_time=start_time, debug=False)
         except exc.HTTPException as httpex:
             print httpex.message
         except Exception as ex:

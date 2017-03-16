@@ -1,0 +1,7 @@
+[monasca]
+monasca_endpoint = http://<ip:port>
+username = <monasca_user>
+password = <password>
+project_name = <monasca_project_name>
+auth_url = http://<ip>:<port>/v3/
+api_version = 2_0
