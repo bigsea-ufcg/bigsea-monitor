@@ -1,39 +1,30 @@
+import pytz
 import requests
 import time
 import tzlocal
-import pytz
-import monitor
 
 from datetime import datetime
-from server.utils.logger import *
-
+from monasca.manager import MonascaMonitor
+from plugins.plugin import Plugin
+from api.utils.logger import *
 
 
 LOG_FILE = "progress.log"
 TIME_PROGRESS_FILE = "time_progress.log"
 MONITORING_INTERVAL = 2
 
-class SparkMonitoring():
 
-    def __init__(self, spark_submisson_url, expected_time):
-        self.submission_url = spark_submisson_url
-        self.monasca = monitor.MonascaMonitor()
-        self.expected_time = expected_time
+class SparkProgress(Plugin):
+
+    def __init__(self, info_plugin):
+        Plugin.__init__()
+        self.submission_url = info_plugin['spark_submisson_url']
+        self.app_id = info_plugin['spark_id']
+        self.expected_time = info_plugin['expected_time']
+        self.collect_period = info_plugin['collect_period']
+        self.monasca = MonascaMonitor()
         # self.logger = Log("ServerLog2", "server.log")
         # configure_logging()
-
-
-    def get_running_app(self):
-        try:
-            all_app = requests.get(self.submission_url +
-                                   ':8080/api/v1/applications?status=running')
-            for app in all_app.json():
-                if app['attempts'][0]['completed'] == False:
-                    return app['id'], app['name']
-            return None
-        except:
-            # self.logger.log("No application found")
-            return None
 
     def get_elapsed_time(self, gmt_timestamp):
         local_tz = tzlocal.get_localzone()
@@ -41,18 +32,6 @@ class SparkMonitoring():
         date_time = date_time.replace(tzinfo=pytz.utc).astimezone(local_tz)
         elapsed_time = datetime.now() - date_time.replace(tzinfo=None)
         return elapsed_time.seconds
-
-    def get_single_job(self):
-        app = None
-        for i in range(0, 50):
-            #self.logger.log('Attempt %s' % i)
-            application = self.get_running_app()
-            if application is not None:
-                app = application
-                break
-            time.sleep(5)
-
-        return app
 
     def _publish_measurement(self, job_request, dimensions):
 
@@ -109,19 +88,14 @@ class SparkMonitoring():
                 pass
 
     def run(self):
-
-        app = self.get_single_job()
-
         # self.logger.log("%s | Spark application id: %s" % (time.strftime("%H:%M:%S"),app[0]))
         # self.logger.log("%s | Starting Monitor" % (time.strftime("%H:%M:%S")))
+        self.running = True
+        dimensions = {'application_id': self.app_id, 'service': 'spark-sahara'}
 
-        if app is not None:
-            app_id = app[0]
-            dimensions = {'application_id': app_id, 'service': 'spark-sahara'}
-
-            while True:
-                try:
-                    self._monitoring_application(dimensions, app_id)
-                except Exception as ex:
-                    print ex.message
-                    break
+        while self.running:
+            try:
+                self._monitoring_application(dimensions, self.app_id)
+            except Exception as ex:
+                print ex.message
+                break
