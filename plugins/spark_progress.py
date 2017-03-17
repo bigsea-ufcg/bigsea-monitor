@@ -6,7 +6,6 @@ import tzlocal
 from datetime import datetime
 from monasca.manager import MonascaMonitor
 from plugins.plugin import Plugin
-from api.utils.logger import *
 
 
 LOG_FILE = "progress.log"
@@ -17,12 +16,15 @@ MONITORING_INTERVAL = 2
 class SparkProgress(Plugin):
 
     def __init__(self, info_plugin):
-        Plugin.__init__()
+        Plugin.__init__(self)
         self.submission_url = info_plugin['spark_submisson_url']
         self.app_id = info_plugin['spark_id']
         self.expected_time = info_plugin['expected_time']
         self.collect_period = info_plugin['collect_period']
         self.monasca = MonascaMonitor()
+        self.dimensions = {'application_id': self.app_id, 'service': 'spark-sahara'}
+        print "tamo aqui"
+
         # self.logger = Log("ServerLog2", "server.log")
         # configure_logging()
 
@@ -56,7 +58,8 @@ class SparkProgress(Plugin):
 
             time.sleep(MONITORING_INTERVAL)
 
-    def _monitoring_application(self, dimensions, app_id):
+    def monitoring_application(self, dimensions, app_id):
+
         try:
             job_request = requests.get(self.submission_url + ':4040/api/v1/applications/' + app_id + '/jobs')
 
@@ -77,25 +80,14 @@ class SparkProgress(Plugin):
                     job_progress['dimensions'] = dimensions
 
                     self.monasca.send_metrics([job_progress])
+                    print "Metric published"
 
                     # self.logger.log("Application %s completed." % app_id)
                     # self.logger.log("%s | Finishing Monitor" % (time.strftime("%H:%M:%S")))
                 else:
-                    pass
+                    print ex.message
                     # self.logger.log("SparkMonitoring Error1: %s" % ex.message)
             except Exception as ex:
-                # self.logger.log("SparkMonitoring Error2: %s" % ex.message)
-                pass
-
-    def run(self):
-        # self.logger.log("%s | Spark application id: %s" % (time.strftime("%H:%M:%S"),app[0]))
-        # self.logger.log("%s | Starting Monitor" % (time.strftime("%H:%M:%S")))
-        self.running = True
-        dimensions = {'application_id': self.app_id, 'service': 'spark-sahara'}
-
-        while self.running:
-            try:
-                self._monitoring_application(dimensions, self.app_id)
-            except Exception as ex:
                 print ex.message
-                break
+                # self.logger.log("SparkMonitoring Error2: %s" % ex.message)
+

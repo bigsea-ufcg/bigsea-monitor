@@ -8,9 +8,13 @@ class Monitor:
 
     def start_monitor(self, plugin_name, info_plugin):
 
+        plugin = None
+
         if plugin_name == "spark_progress":
             plugin = SparkProgress(info_plugin)
             self.app_monitored[info_plugin['spark_id']] = plugin
+
+        print plugin.getName()
 
         plugin.start()
 
