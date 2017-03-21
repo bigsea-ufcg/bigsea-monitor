@@ -15,10 +15,11 @@ class Plugin(threading.Thread):
         pass
 
     def run(self):
+
         self.running = True
         while self.running:
             try:
                 self.monitoring_application(self.dimensions, self.app_id)
+
             except Exception as ex:
                 print ex.message
-                break

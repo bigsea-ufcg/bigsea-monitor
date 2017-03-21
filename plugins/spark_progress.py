@@ -23,7 +23,6 @@ class SparkProgress(Plugin):
         self.collect_period = info_plugin['collect_period']
         self.monasca = MonascaMonitor()
         self.dimensions = {'application_id': self.app_id, 'service': 'spark-sahara'}
-        print "tamo aqui"
 
         # self.logger = Log("ServerLog2", "server.log")
         # configure_logging()
@@ -41,6 +40,8 @@ class SparkProgress(Plugin):
         time_progress = {}
 
         for result in job_request.json():
+            print "tamo aqui2"
+
             timestamp = time.time() * 1000
             progress = result['numCompletedTasks'] / float(result['numTasks'])
             progress = float("{:10.4f}".format(progress))
@@ -61,7 +62,9 @@ class SparkProgress(Plugin):
     def monitoring_application(self, dimensions, app_id):
 
         try:
+
             job_request = requests.get(self.submission_url + ':4040/api/v1/applications/' + app_id + '/jobs')
+            print "tamo aqui3"
 
             self._publish_measurement(job_request, dimensions)
 
