@@ -1,5 +1,6 @@
 import monascaclient.exc as exc
 import ConfigParser
+import os
 
 from monascaclient import client as monclient, ksclient
 
@@ -8,7 +9,8 @@ class MonascaMonitor:
 
     def __init__(self):
         config = ConfigParser.RawConfigParser()
-        config.read('monitor.cfg')
+        __file__ = os.path.realpath("../../monitor.cfg")
+        config.read(__file__)
 
         self.monasca_username = config.get('monasca', 'username')
         self.monasca_password = config.get('monasca', 'password')

@@ -1,21 +1,20 @@
-from plugins.spark_progress import SparkProgress
+from monitor.plugins.spark_progress import SparkProgress
 
 
-class Monitor:
+class Controller:
 
     def __init__(self):
         self.app_monitored = {}
 
-    def start_monitor(self, plugin_name, info_plugin):
-
+    def start_monitor(self, plugin_name, info_plugin, collect_period):
+        print "Starting monitoring..."
         plugin = None
 
         if plugin_name == "spark_progress":
-            plugin = SparkProgress(info_plugin)
+            plugin = SparkProgress(info_plugin, collect_period)
             self.app_monitored[info_plugin['spark_id']] = plugin
 
-        print plugin.getName()
-
+        print "Starting plugin: %s" % plugin.getName()
         plugin.start()
 
     def kill_monitor(self, app_id):

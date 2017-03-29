@@ -1,12 +1,11 @@
+import time
+from datetime import datetime
+
 import pytz
 import requests
-import time
 import tzlocal
-
-from datetime import datetime
-from monasca.manager import MonascaMonitor
-from plugins.plugin import Plugin
-
+from monitor.monasca.manager import MonascaMonitor
+from monitor.plugins.base import Plugin
 
 LOG_FILE = "progress.log"
 TIME_PROGRESS_FILE = "time_progress.log"
@@ -15,17 +14,13 @@ MONITORING_INTERVAL = 2
 
 class SparkProgress(Plugin):
 
-    def __init__(self, info_plugin):
-        Plugin.__init__(self)
+    def __init__(self, info_plugin, collect_period):
+        Plugin.__init__(self, collect_period)
         self.submission_url = info_plugin['spark_submisson_url']
         self.app_id = info_plugin['spark_id']
         self.expected_time = info_plugin['expected_time']
-        self.collect_period = info_plugin['collect_period']
         self.monasca = MonascaMonitor()
         self.dimensions = {'application_id': self.app_id, 'service': 'spark-sahara'}
-
-        # self.logger = Log("ServerLog2", "server.log")
-        # configure_logging()
 
     def get_elapsed_time(self, gmt_timestamp):
         local_tz = tzlocal.get_localzone()
@@ -40,7 +35,6 @@ class SparkProgress(Plugin):
         time_progress = {}
 
         for result in job_request.json():
-            print "tamo aqui2"
 
             timestamp = time.time() * 1000
             progress = result['numCompletedTasks'] / float(result['numTasks'])
@@ -64,33 +58,34 @@ class SparkProgress(Plugin):
         try:
 
             job_request = requests.get(self.submission_url + ':4040/api/v1/applications/' + app_id + '/jobs')
-            print "tamo aqui3"
 
             self._publish_measurement(job_request, dimensions)
+            print "DEU CERTO"
 
         except Exception as ex:
             # self.logger.log("SparkMonitoring Error: %s" % ex.message)
-            try:
-                job_request = requests.get(self.submission_url + ':8080/api/v1/applications/' + app_id)
-
-                if job_request.json()['attempts'][0]['completed']:
-                    timestamp = time.time() * 1000
-                    job_progress = {}
-
-                    job_progress['name'] = 'spark.job_progress'
-                    job_progress['value'] = 1
-                    job_progress['timestamp'] = timestamp
-                    job_progress['dimensions'] = dimensions
-
-                    self.monasca.send_metrics([job_progress])
-                    print "Metric published"
-
-                    # self.logger.log("Application %s completed." % app_id)
-                    # self.logger.log("%s | Finishing Monitor" % (time.strftime("%H:%M:%S")))
-                else:
-                    print ex.message
-                    # self.logger.log("SparkMonitoring Error1: %s" % ex.message)
-            except Exception as ex:
-                print ex.message
-                # self.logger.log("SparkMonitoring Error2: %s" % ex.message)
+            print "Error: No application found for %s" % app_id
+            # try:
+            #     job_request = requests.get(self.submission_url + ':8080/api/v1/applications/' + app_id)
+            #
+            #     if job_request.json()['attempts'][0]['completed']:
+            #         timestamp = time.time() * 1000
+            #         job_progress = {}
+            #
+            #         job_progress['name'] = 'spark.job_progress'
+            #         job_progress['value'] = 1
+            #         job_progress['timestamp'] = timestamp
+            #         job_progress['dimensions'] = dimensions
+            #
+            #         self.monasca.send_metrics([job_progress])
+            #         print "Metric published"
+            #
+            #         # self.logger.log("Application %s completed." % app_id)
+            #         # self.logger.log("%s | Finishing Monitor" % (time.strftime("%H:%M:%S")))
+            #     else:
+            #         print ex.message
+            #         # self.logger.log("SparkMonitoring Error1: %s" % ex.message)
+            # except Exception as ex:
+            #     print ex.message
+            #     # self.logger.log("SparkMonitoring Error2: %s" % ex.message)
 
