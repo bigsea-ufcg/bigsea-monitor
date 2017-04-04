@@ -63,29 +63,6 @@ class SparkProgress(Plugin):
             print "DEU CERTO"
 
         except Exception as ex:
-            # self.logger.log("SparkMonitoring Error: %s" % ex.message)
-            print "Error: No application found for %s" % app_id
-            # try:
-            #     job_request = requests.get(self.submission_url + ':8080/api/v1/applications/' + app_id)
-            #
-            #     if job_request.json()['attempts'][0]['completed']:
-            #         timestamp = time.time() * 1000
-            #         job_progress = {}
-            #
-            #         job_progress['name'] = 'spark.job_progress'
-            #         job_progress['value'] = 1
-            #         job_progress['timestamp'] = timestamp
-            #         job_progress['dimensions'] = dimensions
-            #
-            #         self.monasca.send_metrics([job_progress])
-            #         print "Metric published"
-            #
-            #         # self.logger.log("Application %s completed." % app_id)
-            #         # self.logger.log("%s | Finishing Monitor" % (time.strftime("%H:%M:%S")))
-            #     else:
-            #         print ex.message
-            #         # self.logger.log("SparkMonitoring Error1: %s" % ex.message)
-            # except Exception as ex:
-            #     print ex.message
-            #     # self.logger.log("SparkMonitoring Error2: %s" % ex.message)
-
+            self.attempts -= 1
+            print "Error: No application found for %s\n%s remaining attempts" % (self.app_id, self.attempts)
+            raise
