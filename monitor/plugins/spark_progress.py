@@ -14,10 +14,10 @@ MONITORING_INTERVAL = 2
 
 class SparkProgress(Plugin):
 
-    def __init__(self, info_plugin, collect_period):
+    def __init__(self, app_id, info_plugin, collect_period):
         Plugin.__init__(self, collect_period)
         self.submission_url = info_plugin['spark_submisson_url']
-        self.app_id = info_plugin['spark_id']
+        self.app_id = app_id
         self.expected_time = info_plugin['expected_time']
         self.monasca = MonascaMonitor()
         self.dimensions = {'application_id': self.app_id, 'service': 'spark-sahara'}

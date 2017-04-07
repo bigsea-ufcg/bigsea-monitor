@@ -6,14 +6,14 @@ class Controller:
     def __init__(self):
         self.app_monitored = {}
 
-    def start_monitor(self, plugin_name, info_plugin, collect_period):
+    def start_monitor(self, plugin_name, app_id, info_plugin, collect_period):
         print "Starting monitoring..."
         plugin = None
 
-        if info_plugin['spark_id'] not in self.app_monitored:
+        if app_id not in self.app_monitored:
             if plugin_name == "spark_progress":
-                plugin = SparkProgress(info_plugin, collect_period)
-                self.app_monitored[info_plugin['spark_id']] = plugin
+                plugin = SparkProgress(app_id, info_plugin, collect_period)
+                self.app_monitored[app_id] = plugin
 
             print "Starting plugin: %s" % plugin.getName()
             plugin.start()
