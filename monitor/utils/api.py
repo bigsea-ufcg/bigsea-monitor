@@ -6,7 +6,7 @@ from logger import *
 from utils import *
 
 
-LOG = Log("LB_UtilsAPI", "LB_utilsapi.log")
+LOG = Log("Monitor_UtilsAPI", "Monitor_utilsapi.log")
 
 
 class Rest(flask.Blueprint):

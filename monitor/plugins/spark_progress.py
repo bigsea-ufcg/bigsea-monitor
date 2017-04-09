@@ -54,13 +54,13 @@ class SparkProgress(Plugin):
             time.sleep(MONITORING_INTERVAL)
 
     def monitoring_application(self, dimensions, app_id):
+        print "toaqui"
 
         try:
 
             job_request = requests.get(self.submission_url + ':4040/api/v1/applications/' + app_id + '/jobs')
 
             self._publish_measurement(job_request, dimensions)
-            print "DEU CERTO"
 
         except Exception as ex:
             self.attempts -= 1

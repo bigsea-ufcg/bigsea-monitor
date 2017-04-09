@@ -2,9 +2,10 @@ from monitor.cli import *
 
 import ConfigParser
 import os
+import sys
 
 config = ConfigParser.RawConfigParser()
-__file__ = os.path.realpath("../../monitor.cfg")
+__file__ = os.path.join(sys.path[0], '../../monitor.cfg')
 config.read(__file__)
 
 host_address = config.get('service', 'host')
