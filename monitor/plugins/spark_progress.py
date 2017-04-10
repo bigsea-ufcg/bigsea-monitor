@@ -50,12 +50,11 @@ class SparkProgress(Plugin):
             time_progress['timestamp'] = timestamp
             time_progress['dimensions'] = dimensions
             self.monasca.send_metrics([job_progress, time_progress])
+            print "Metric successfully published"
 
             time.sleep(MONITORING_INTERVAL)
 
     def monitoring_application(self, dimensions, app_id):
-        print "toaqui"
-
         try:
 
             job_request = requests.get(self.submission_url + ':4040/api/v1/applications/' + app_id + '/jobs')
