@@ -18,7 +18,6 @@ def start(data, app_id):
     info_plugin = data['info_plugin'] or None
     collect_period = data['collect_period']
     monitor.start_monitor(plugin, app_id, info_plugin, collect_period)
-
     return "ok"
 
 

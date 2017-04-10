@@ -9,7 +9,7 @@ class Plugin(threading.Thread):
         self.running = False
         self.dimensions = {}
         self.collect_period = collect_period
-        self.attempts = 120
+        self.attempts = 30
         self.app_id = None
 
     def stop(self):
@@ -20,7 +20,6 @@ class Plugin(threading.Thread):
         pass
 
     def run(self):
-
         self.running = True
         while self.running:
             if self.attempts == 0:
@@ -29,7 +28,7 @@ class Plugin(threading.Thread):
             try:
                 time.sleep(self.collect_period)
                 self.monitoring_application(self.dimensions, self.app_id)
-                self.attempts = 5
+                self.attempts = 30
 
             except Exception as ex:
                 # print ex.message
