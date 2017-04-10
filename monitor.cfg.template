@@ -11,3 +11,4 @@ api_version = 2_0
 host = <host_ip>
 port = <port_number>
 debug = True
+retries = 30

@@ -14,8 +14,8 @@ MONITORING_INTERVAL = 2
 
 class SparkProgress(Plugin):
 
-    def __init__(self, app_id, info_plugin, collect_period):
-        Plugin.__init__(self, collect_period)
+    def __init__(self, app_id, info_plugin, collect_period, retries=60):
+        Plugin.__init__(self, collect_period, retries=retries)
         self.submission_url = info_plugin['spark_submisson_url']
         self.app_id = app_id
         self.expected_time = info_plugin['expected_time']
@@ -63,5 +63,5 @@ class SparkProgress(Plugin):
 
         except Exception as ex:
             self.attempts -= 1
-            print "Error: No application found for %s\n%s remaining attempts" % (self.app_id, self.attempts)
+            print "Error: No application found for %s. %s remaining attempts" % (self.app_id, self.attempts)
             raise
