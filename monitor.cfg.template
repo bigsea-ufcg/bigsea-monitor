@@ -5,3 +5,9 @@ password = <password>
 project_name = <monasca_project_name>
 auth_url = http://<ip>:<port>/v3/
 api_version = 2_0
+
+# Flask configuration
+[service]
+host = <host_ip>
+port = <port_number>
+debug = True
