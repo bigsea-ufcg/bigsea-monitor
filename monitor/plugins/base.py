@@ -4,7 +4,7 @@ import time
 
 class Plugin(threading.Thread):
 
-    def __init__(self, collect_period, retries):
+    def __init__(self, collect_period, retries=30):
         threading.Thread.__init__(self)
         self.running = False
         self.dimensions = {}

@@ -28,6 +28,11 @@ class TestPluginBase(unittest.TestCase):
         self.assertEqual(plugin_2.attempts, 30)
         self.assertEqual(plugin_2.app_id, None)
 
-    def test_start_plugin(self):
-        pass
+    def test_stop_plugin(self):
+        plugin = Plugin(3)
+
+        plugin.running = True
+        plugin.stop()
+        self.assertFalse(plugin.running)
+
 

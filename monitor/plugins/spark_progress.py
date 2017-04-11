@@ -22,7 +22,7 @@ class SparkProgress(Plugin):
         self.monasca = MonascaMonitor()
         self.dimensions = {'application_id': self.app_id, 'service': 'spark-sahara'}
 
-    def get_elapsed_time(self, gmt_timestamp):
+    def _get_elapsed_time(self, gmt_timestamp):
         local_tz = tzlocal.get_localzone()
         date_time = datetime.strptime(gmt_timestamp, '%Y-%m-%dT%H:%M:%S.%fGMT')
         date_time = date_time.replace(tzinfo=pytz.utc).astimezone(local_tz)
@@ -39,7 +39,7 @@ class SparkProgress(Plugin):
             timestamp = time.time() * 1000
             progress = result['numCompletedTasks'] / float(result['numTasks'])
             progress = float("{:10.4f}".format(progress))
-            used_time = self.get_elapsed_time(result['submissionTime']) / float(self.expected_time)
+            used_time = self._get_elapsed_time(result['submissionTime']) / float(self.expected_time)
             # self.logger.log("%s,%s" % (progress, used_time))
             job_progress['name'] = 'spark.job_progress'
             job_progress['value'] = progress
