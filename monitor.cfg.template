@@ -12,3 +12,10 @@ host = <host_ip>
 port = <port_number>
 debug = True
 retries = 30
+
+[openstack]
+user = <user>
+password = <password>
+project_id = <project_id>
+user_domain = <user_domain>
+key_pair = <path_to_private_key>
