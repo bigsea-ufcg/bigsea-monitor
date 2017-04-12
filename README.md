@@ -28,16 +28,45 @@ POST /start/<app_id>
 Request body:
 ```javascript
 {
-	"plugin": "spark_progress",
-	"info_plugin":{
-	                "spark_submisson_url":"http://10.11.4.11",
-					"expected_time": 500
-
-	              },
-	"collect_period": 2
+	"plugin": "<plugin_name>",
+	"info_plugin":{<info_keys>: <info_values>},
+	"collect_period": <interval_in_seconds>
 }
 ```
 
 #### How to stop monitoring
 
 POST /stop/<app_id>
+
+#### Plugins Examples
+
+##### SparkProgress
+
+POST /start/<app_id>
+Request body:
+```javascript
+{
+	"plugin": "spark_progress",
+	"info_plugin":{
+	                "spark_submisson_url":"http://10.11.4.11",
+					"expected_time": 500
+
+	},
+	"collect_period": 2
+}
+```
+
+##### Web-App
+
+POST /start/<app_id>
+Request body:
+```javascript
+{
+	"plugin": "web_app_monitor",
+	"info_plugin": {"host_ip":"10.57.4.1",
+					"host_username": "ubuntu",
+					"log_path":"/var/log/web-app.log"
+	},
+	"collect_period": 1
+}
+```
