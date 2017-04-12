@@ -28,8 +28,8 @@ class Plugin(threading.Thread):
             try:
                 time.sleep(self.collect_period)
                 self.monitoring_application(self.dimensions, self.app_id)
-                self.attempts = self.attempts
 
             except Exception as ex:
-                # print ex.message
+                self.attempts -= 1
+                print ex.message
                 pass

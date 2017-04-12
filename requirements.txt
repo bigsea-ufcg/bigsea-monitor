@@ -1,4 +1,5 @@
 flask
+paramiko
 python-monascaclient
 pytz
 requests

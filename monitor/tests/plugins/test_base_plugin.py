@@ -3,6 +3,7 @@ import unittest
 
 from monitor.plugins.base import Plugin
 
+
 class TestPluginBase(unittest.TestCase):
 
     def setUp(self):

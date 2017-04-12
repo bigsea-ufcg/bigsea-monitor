@@ -62,6 +62,5 @@ class SparkProgress(Plugin):
             self._publish_measurement(job_request, dimensions)
 
         except Exception as ex:
-            self.attempts -= 1
             print "Error: No application found for %s. %s remaining attempts" % (self.app_id, self.attempts)
             raise
