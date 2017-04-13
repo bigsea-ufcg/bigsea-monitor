@@ -42,7 +42,7 @@ POST /stop/<app_id>
 
 ##### SparkProgress
 
-POST /start/<app_id>
+POST /start/app-20170411192759-0026
 Request body:
 ```javascript
 {
@@ -58,7 +58,7 @@ Request body:
 
 ##### Web-App
 
-POST /start/<app_id>
+POST /start/web-app-01
 Request body:
 ```javascript
 {
