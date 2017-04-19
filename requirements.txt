@@ -1,7 +1,11 @@
 flask
+markupsafe
+python-openstackclient
 paramiko
+pbr
 python-monascaclient
 pytz
 requests
 rfc3986
 tzlocal
+wrapt
