@@ -23,7 +23,11 @@ class SparkProgress(Plugin):
         self.dimensions = {'application_id': self.app_id, 'service': 'spark-sahara'}
 
     def _get_elapsed_time(self, gmt_timestamp):
-        local_tz = tzlocal.get_localzone()
+        try:
+            local_tz = tzlocal.get_localzone()
+        except Exception as e:
+            local_tz = "America/Recife"
+            local_tz = pytz.timezone(local_tz)
         date_time = datetime.strptime(gmt_timestamp, '%Y-%m-%dT%H:%M:%S.%fGMT')
         date_time = date_time.replace(tzinfo=pytz.utc).astimezone(local_tz)
         elapsed_time = datetime.now() - date_time.replace(tzinfo=None)
@@ -56,11 +60,12 @@ class SparkProgress(Plugin):
 
     def monitoring_application(self, dimensions, app_id):
         try:
-
+            
             job_request = requests.get(self.submission_url + ':4040/api/v1/applications/' + app_id + '/jobs')
-
+            
             self._publish_measurement(job_request, dimensions)
 
         except Exception as ex:
             print "Error: No application found for %s. %s remaining attempts" % (self.app_id, self.attempts)
+            print ex.message
             raise
