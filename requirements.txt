@@ -1,3 +1,4 @@
+pytz
 appdirs
 asn1crypto
 Babel
@@ -49,7 +50,6 @@ Paste
 PasteDeploy
 pbr
 pluggy
-positional
 prettytable
 py
 pyasn1
@@ -65,7 +65,6 @@ python-monascaclient
 python-novaclient
 python-openstackclient
 python-saharaclient
-pytz
 PyYAML
 repoze.lru
 requests
@@ -73,7 +72,7 @@ requestsexceptions
 rfc3986
 Routes
 simplejson
-six
+six>=1.6.0
 statsd
 stevedore
 tox
