@@ -21,22 +21,26 @@ class Log:
 def configure_logging():
     logging.basicConfig(level=logging.DEBUG)
 
-def main(n_threads, n_factorial_min, n_factorial_max, n_loop, time_sleep_min, time_sleep_max, logger, progress_logger):
+def main(n_threads, n_factorial_min, n_factorial_max, n_loop, time_sleep_min, time_sleep_max, stress_trigger, stress_value, logger, progress_logger):
     for i in xrange(n_threads):
         factorial_thread = threading.Thread(target=factorial_loop, 
                                             args=(i, n_factorial_min, n_factorial_max, 
                                                   n_loop, time_sleep_min, time_sleep_max, 
+                                                  stress_trigger, stress_value,
                                                   logger, progress_logger))
         
         factorial_thread.start()
 
 def factorial_loop(thread_number, n_factorial_min, n_factorial_max, n_loop, time_sleep_min,
-                    time_sleep_max, logger, progress_logger):
+                    time_sleep_max, stress_trigger, stress_value, logger, progress_logger):
     logger.log("Starting thread: %d" % (thread_number))
     
     for i in xrange(n_loop):
         factorial_value = random.randrange(n_factorial_min, n_factorial_max)
         sleep_value = random.randrange(time_sleep_min, time_sleep_max)
+        
+        if factorial_value > stress_trigger:
+            factorial_value = stress_value
         
         start = time()
         factorial(factorial_value)
@@ -57,6 +61,8 @@ if __name__ == '__main__':
     n_factorial_min = int(sys.argv[4])
     n_factorial_max = int(sys.argv[5])
     n_loop = int(sys.argv[6])
+    stress_trigger = int(sys.argv[7])
+    stress_value = int(sys.argv[8])
     
     logger = Log("log", "log.txt")
     progress_logger = Log("progress-log", "progress.txt")
@@ -66,4 +72,4 @@ if __name__ == '__main__':
                         % (n_threads, time_sleep_min, time_sleep_max, 
                            n_factorial_min, n_factorial_max, n_loop))
     
-    main(n_threads, n_factorial_min, n_factorial_max, n_loop, time_sleep_min, time_sleep_max, logger, progress_logger)
+    main(n_threads, n_factorial_min, n_factorial_max, n_loop, time_sleep_min, time_sleep_max, stress_trigger, stress_value, logger, progress_logger)
