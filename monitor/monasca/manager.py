@@ -18,8 +18,8 @@ class MonascaMonitor:
         self.monasca_auth_url = config.get('monasca', 'auth_url')
         self.monasca_project_name = config.get('monasca', 'project_name')
         self.monasca_api_version = config.get('monasca', 'api_version')
-
         self._get_monasca_client()
+
 
     def get_measurements(self, metric_name, dimensions, start_time='2014-01-01T00:00:00Z'):
         measurements = []

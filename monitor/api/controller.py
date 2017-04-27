@@ -4,6 +4,7 @@ import sys
 
 from monitor.plugins.spark_progress import SparkProgress
 from monitor.plugins.web_log_monitor import WebAppMonitor
+from monitor.plugins.os_generic import OSGeneric
 
 config = ConfigParser.RawConfigParser()
 __file__ = os.path.join(sys.path[0], '../../monitor.cfg')
@@ -30,12 +31,12 @@ class Controller:
                 plugin = SparkProgress(app_id, info_plugin, collect_period, retries=60)
                 self.app_monitored[app_id] = plugin
             elif plugin_name == "web_app_monitor":
-                plugin = WebAppMonitor(app_id,
-                                       info_plugin,
-                                       collect_period,
-                                       self.os_keypair,
-                                       retries=60)
+                plugin = WebAppMonitor(app_id, info_plugin, collect_period, self.os_keypair, retries=60)
                 self.app_monitored[app_id] = plugin
+            elif plugin_name == "os_generic":
+                plugin = OSGeneric(app_id, info_plugin, collect_period, self.os_keypair, retries=60)
+                self.app_monitored[app_id] = plugin
+
             print "Starting plugin: %s" % plugin.getName()
             plugin.start()
 

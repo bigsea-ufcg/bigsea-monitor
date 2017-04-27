@@ -2,3 +2,5 @@
 *.log
 .idea/
 *.cfg
+*.tox
+bigsea_key
