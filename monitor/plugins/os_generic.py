@@ -14,8 +14,8 @@ class OSGeneric(Plugin):
         self.expected_time = info_plugin['expected_time']
         self.keypair_path = keypair
         self.host_username = 'ubuntu'
-        self.log_path = '/var/log/app-progress.log'
-        self.dimensions = {"app_id": self.app_id,
+        self.log_path = info_plugin['log_path']
+        self.dimensions = {"application_id": self.app_id,
                            "host": self.host_ip}
         self.last_checked = ''
         self.start_time = time.time()
@@ -51,7 +51,7 @@ class OSGeneric(Plugin):
             ref_value = self._get_elapsed_time() / self.expected_time
             measurement_value = self._get_metric_value(last_log)
             error = ref_value - measurement_value
-            metric['name'] = 'os_generic.reference_error'
+            metric['name'] = 'application-progress.error'
             metric['value'] = error
             metric['timestamp'] = time.time() * 1000
             metric['dimensions'] = self.dimensions
