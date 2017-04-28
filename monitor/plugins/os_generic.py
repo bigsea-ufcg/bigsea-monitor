@@ -50,7 +50,7 @@ class OSGeneric(Plugin):
             # value and timestamp
             ref_value = self._get_elapsed_time() / self.expected_time
             measurement_value = self._get_metric_value(last_log)
-            error = ref_value - measurement_value
+            error = measurement_value - ref_value
             metric['name'] = 'application-progress.error'
             metric['value'] = error
             metric['timestamp'] = time.time() * 1000
