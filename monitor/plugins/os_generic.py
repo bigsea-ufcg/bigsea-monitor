@@ -58,7 +58,7 @@ class OSGeneric(Plugin):
             # Sending the metric to Monasca
             print measurement_value
             self.monasca.send_metrics([metric])
-            print "WebApp metric published: %i" % error
+            print "Metric published: %i" % error
 
         # Flag that checks if the log capture is ended
         elif '[END]' in last_log:
