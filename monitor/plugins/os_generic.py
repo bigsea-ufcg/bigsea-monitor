@@ -56,9 +56,8 @@ class OSGeneric(Plugin):
             metric['timestamp'] = time.time() * 1000
             metric['dimensions'] = self.dimensions
             # Sending the metric to Monasca
-            print measurement_value
             self.monasca.send_metrics([metric])
-            print "Metric published: %i" % error
+            print "Application progress error: %.4f" % error
 
         # Flag that checks if the log capture is ended
         elif '[END]' in last_log:
