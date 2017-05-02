@@ -26,13 +26,5 @@ retries = 30
 # This section is optional and must be used only when you pretend to
 # run some OpenStack based plugin.
 [openstack]
-# Keystone username
-user = <user>
-# The above-mentioned user's password
-password = <password>
-# The above-mentioned user's keystone project id
-project_id = <project_id>
-# The above-mentioned user's domain in keystone
-user_domain = <user_domain>
 # Path to a private key associated with some OpenStack keypair
 key_pair = <path_to_private_key>
