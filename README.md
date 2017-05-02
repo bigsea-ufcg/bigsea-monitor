@@ -19,7 +19,8 @@ debug = True
 ```
 * Run the main python file to lift the service
 ```
-$ python monitor/cli/main.py
+$ ./setup.sh #You must be superuser
+$ ./run.sh
 ```
 
 #### How to start monitoring
@@ -64,8 +65,23 @@ Request body:
 {
 	"plugin": "web_app_monitor",
 	"info_plugin": {"host_ip":"10.57.4.1",
-					"host_username": "ubuntu",
-					"log_path":"/var/log/web-app.log"
+			"host_username": "ubuntu",
+			"log_path":"/var/log/web-app.log"
+	},
+	"collect_period": 1
+}
+```
+
+##### OpenStack Generic
+
+POST /start/os-generic-s8bc3
+Request body:
+```javascript
+{
+	"plugin": "os_generic",
+	"info_plugin": {"host_ip":"10.57.4.1",
+			"expected_time": 360,
+			"log_path":"/var/log/web-app.log"
 	},
 	"collect_period": 1
 }
