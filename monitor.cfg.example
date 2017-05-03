@@ -13,10 +13,6 @@ port = 5675
 debug = True
 retries = 30
 
-[openstack]
-user =
-password =
-project_id =
-user_domain =
+[credentials]
 key_pair = /home/ubuntu/bigsea-ufcg.pem
 

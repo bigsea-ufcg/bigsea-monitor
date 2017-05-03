@@ -25,6 +25,6 @@ retries = 30
 
 # This section is optional and must be used only when you pretend to
 # run some OpenStack based plugin.
-[openstack]
+[credentials]
 # Path to a private key associated with some OpenStack keypair
 key_pair = <path_to_private_key>

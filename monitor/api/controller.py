@@ -31,11 +31,7 @@ class Controller:
     def __init__(self):
         self.app_monitored = {}
         self.retries = config.getint('service', 'retries')
-        self.os_user = config.get('openstack', 'user')
-        self.os_password = config.get('openstack', 'password')
-        self.os_project_id = config.get('openstack', 'project_id')
-        self.os_user_domain = config.get('openstack', 'user_domain')
-        self.os_keypair = config.get('openstack', 'key_pair')
+        self.os_keypair = config.get('credentials', 'key_pair')
 
     def start_monitor(self, plugin_name, app_id, info_plugin, collect_period):
         print "Starting monitoring..."
