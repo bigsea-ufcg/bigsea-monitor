@@ -23,8 +23,7 @@ from monitor.plugins.base import Plugin
 class OSGeneric(Plugin):
 
     def __init__(self, app_id, info_plugin, collect_period, keypair, retries=60):
-        Plugin.__init__(self, collect_period, retries=retries)
-        self.app_id = app_id
+        Plugin.__init__(self, app_id, info_plugin, collect_period, retries=retries)
         self.host_ip = info_plugin['host_ip']
         self.expected_time = info_plugin['expected_time']
         self.keypair_path = keypair
@@ -78,7 +77,7 @@ class OSGeneric(Plugin):
         elif '[END]' in last_log:
             self.running = False
 
-    def monitoring_application(self, dimensions, app_id):
+    def monitoring_application(self):
         try:
 
             conn = self._get_ssh_connection()

@@ -19,19 +19,20 @@ import time
 
 class Plugin(threading.Thread):
 
-    def __init__(self, collect_period, retries=30):
+    def __init__(self, app_id, info_plugin, collect_period, retries=30):
         threading.Thread.__init__(self)
+        self.info_plugin = info_plugin
         self.running = False
-        self.dimensions = {}
+        self.dimensions = {'application_id': app_id}
         self.collect_period = collect_period
         self.attempts = retries
-        self.app_id = None
+        self.app_id = app_id
 
     def stop(self):
         print "The %s is stopping for %s..." % (type(self).__name__, self.app_id)
         self.running = False
 
-    def monitoring_application(self, dimensions, app_id):
+    def monitoring_application(self):
         pass
 
     def run(self):
@@ -42,7 +43,7 @@ class Plugin(threading.Thread):
                 break
             try:
                 time.sleep(self.collect_period)
-                self.monitoring_application(self.dimensions, self.app_id)
+                self.monitoring_application()
 
             except Exception as ex:
                 self.attempts -= 1
