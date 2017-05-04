@@ -12,3 +12,24 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import ConfigParser
+import os
+import sys
+
+config = ConfigParser.RawConfigParser()
+__file__ = os.path.join(sys.path[0], '../../monitor.cfg')
+config.read(__file__)
+
+monasca_endpoint = config.get('monasca', 'monasca_endpoint')
+monasca_username = config.get('monasca', 'username')
+monasca_password = config.get('monasca', 'password')
+monasca_auth_url = config.get('monasca', 'auth_url')
+monasca_project_name = config.get('monasca', 'project_name')
+monasca_api_version = config.get('monasca', 'api_version')
+
+retries = config.getint('service', 'retries')
+host_address = config.get('service', 'host')
+host_port = config.getint('service', 'port')
+use_debug = config.get('service', 'debug')
+
+os_keypair = config.get('credentials', 'key_pair')

@@ -17,26 +17,28 @@ import ConfigParser
 import os
 import sys
 
+from monitor import api
 from monitor.plugins.spark_progress import SparkProgress
 from monitor.plugins.web_log_monitor import WebAppMonitor
 from monitor.plugins.os_generic import OSGeneric
-
-config = ConfigParser.RawConfigParser()
-__file__ = os.path.join(sys.path[0], '../../monitor.cfg')
-config.read(__file__)
 
 
 class Controller:
 
     def __init__(self):
+        # This dictionary contains all the plugins objects where the key is the application_id and
+        # the value is the own plugin object.
         self.app_monitored = {}
-        self.retries = config.getint('service', 'retries')
-        self.os_keypair = config.get('credentials', 'key_pair')
+        self.retries = api.retries
+        self.os_keypair = api.os_keypair
 
     def start_monitor(self, plugin_name, app_id, info_plugin, collect_period):
         print "Starting monitoring..."
         plugin = None
 
+        # These conditional cases choose the class plugin's constructor of the application submitted
+        # Note: some plugins need the keypair to access remotely some machine and execute the monitoring
+        # logic, but this attribute is not mandatory for all the plugins.
         if app_id not in self.app_monitored:
             if plugin_name == "spark_progress":
                 plugin = SparkProgress(app_id, info_plugin, collect_period, retries=60)
@@ -56,6 +58,7 @@ class Controller:
 
     def kill_monitor(self, app_id):
         try:
+            # Stop the plugin and remove from the data structure
             self.app_monitored.pop(app_id, None).stop()
         except Exception as ex:
             ex.message

@@ -19,20 +19,17 @@ import os
 import sys
 
 from monascaclient import client as monclient, ksclient
+from monitor import api
 
 
 class MonascaMonitor:
 
     def __init__(self):
-        config = ConfigParser.RawConfigParser()
-        __file__ = os.path.join(sys.path[0], '../../monitor.cfg')
-        config.read(__file__)
-
-        self.monasca_username = config.get('monasca', 'username')
-        self.monasca_password = config.get('monasca', 'password')
-        self.monasca_auth_url = config.get('monasca', 'auth_url')
-        self.monasca_project_name = config.get('monasca', 'project_name')
-        self.monasca_api_version = config.get('monasca', 'api_version')
+        self.monasca_username = api.monasca_username
+        self.monasca_password = api.monasca_password
+        self.monasca_auth_url = api.monasca_auth_url
+        self.monasca_project_name = api.monasca_project_name
+        self.monasca_api_version = api.monasca_api_version
         self._get_monasca_client()
 
 
