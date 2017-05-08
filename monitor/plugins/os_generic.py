@@ -35,7 +35,8 @@ class OSGeneric(Plugin):
         self.start_time = time.time()
         self.monasca = MonascaMonitor()
 
-
+    # This method extracts the value information from a log line
+    # that contains the measurement for the interest metric
     def _get_metric_value(self, log):
         value = None
         for i in range(len(log) - 1, 0, -1):
@@ -47,6 +48,10 @@ class OSGeneric(Plugin):
         delay = time.time() - self.start_time
         return delay
 
+    # This method returns a remote connection with the host where
+    # the log will be captured. It is possible to execute a command
+    # in the host using the function c.exec_command("write_command_here")
+    # with the object returned here
     def _get_ssh_connection(self):
         keypair = paramiko.RSAKey.from_private_key_file(self.keypair_path)
         conn = paramiko.SSHClient()
@@ -54,10 +59,12 @@ class OSGeneric(Plugin):
         conn.connect(hostname=self.host_ip, username=self.host_username, pkey=keypair)
         return conn
 
+    # This is an auxiliary function to prepare and publish the metric. The point is to keep
+    # monitoring_application as simple as possible.
     def _publish_metrics(self, last_log):
         metric = {}
         print last_log
-        # Check if this log line contains a new metric measurement
+        # Check if this log line contains a new metric measurement.
         if '[Progress]' in last_log and self.last_checked != last_log:
             self.last_checked = last_log
             # Add to metric_info values for this measurement:
@@ -65,6 +72,9 @@ class OSGeneric(Plugin):
             ref_value = self._get_elapsed_time() / self.expected_time
             measurement_value = self._get_metric_value(last_log)
             error = measurement_value - ref_value
+            # The Monasca metric must have the 3 following fields to be created: name, value and timestamp,
+            # but also is possible to increment the metrics identities - using dimensions -  and informations -
+            # using value_meta, a dictionary that contains aditional information about the measurement  .
             metric['name'] = 'application-progress.error'
             metric['value'] = error
             metric['timestamp'] = time.time() * 1000
@@ -79,9 +89,12 @@ class OSGeneric(Plugin):
 
     def monitoring_application(self):
         try:
-
+            # First of all, a connection with the host is created.
             conn = self._get_ssh_connection()
+            # The second step consists in execute the command to capture the last log line from the log
+            # file using the connection create below and saving the outputs.
             stdin , stdout, stderr = conn.exec_command("sudo tail -1 %s" % self.log_path)
+            # The last step is to actually publish using the captured log line.
             self._publish_metrics(stdout.read())
 
         except Exception as ex:
