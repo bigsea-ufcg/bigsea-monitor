@@ -49,25 +49,27 @@ class SparkProgress(Plugin):
 
     def _publish_measurement(self, job_request):
 
-        job_progress = {}
-        time_progress = {}
+        application_progress_error = {}
 
         for result in job_request.json():
 
-            timestamp = time.time() * 1000
             progress = result['numCompletedTasks'] / float(result['numTasks'])
             progress = float("{:10.4f}".format(progress))
-            used_time = self._get_elapsed_time(result['submissionTime']) / float(self.expected_time)
-            # self.logger.log("%s,%s" % (progress, used_time))
-            job_progress['name'] = 'spark.job_progress'
-            job_progress['value'] = progress
-            job_progress['timestamp'] = timestamp
-            job_progress['dimensions'] = self.dimensions
-            time_progress['name'] = 'spark.elapsed_time'
-            time_progress['value'] = used_time
-            time_progress['timestamp'] = timestamp
-            time_progress['dimensions'] = self.dimensions
-            self.monasca.send_metrics([job_progress, time_progress])
+            # Add to metric_info values for this measurement:
+            # value and timestamp
+            ref_value = self._get_elapsed_time(result['submissionTime']) / float(self.expected_time)
+            error = progress - ref_value
+            # The Monasca metric must have the 3 following fields to be created: name, value and timestamp,
+            # but also is possible to increment the metrics identities - using dimensions -  and informations -
+            # using value_meta, a dictionary that contains aditional information about the measurement  .
+            application_progress_error['name'] = 'application-progress.error'
+            application_progress_error['value'] = error
+            application_progress_error['timestamp'] = time.time() * 1000
+            application_progress_error['dimensions'] = self.dimensions
+            # Sending the metric to Monasca
+            self.monasca.send_metrics([application_progress_error])
+
+
             print "Metric successfully published"
 
             time.sleep(MONITORING_INTERVAL)
