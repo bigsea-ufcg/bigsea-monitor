@@ -40,7 +40,7 @@ class Controller:
         # Note: some plugins need the keypair to access remotely some machine and execute the monitoring
         # logic, but this attribute is not mandatory for all the plugins.
         if app_id not in self.app_monitored:
-            if plugin_name == "spark_progress":
+            if plugin_name == "sahara":
                 plugin = SparkProgress(app_id, info_plugin, collect_period, retries=60)
                 self.app_monitored[app_id] = plugin
             elif plugin_name == "web_app_monitor":
