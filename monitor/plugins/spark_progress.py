@@ -72,7 +72,7 @@ class SparkProgress(Plugin):
                                  / (float(self.number_of_jobs)
                                  - float(self.current_job_id)))
 
-            else:
+            elif current_job['status'] == 'RUNNING':
                 # Job Progress
                 job_progress = (current_job['numCompletedTasks']
                                 / float(current_job['numTasks']))
@@ -87,7 +87,8 @@ class SparkProgress(Plugin):
                 # Error
                 error = job_progress - ref_value
                 
-                application_progress_error['name'] = 'application-progress.error'
+                application_progress_error['name'] = 'application-progress.\
+                                                      error'
 
                 application_progress_error['value'] = error
                 application_progress_error['timestamp'] = time.time() * 1000
