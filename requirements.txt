@@ -6,7 +6,7 @@ cffi
 click
 cliff
 cmd2
-cryptography
+cryptography==1.9
 debtcollector
 deprecation
 enum-compat
