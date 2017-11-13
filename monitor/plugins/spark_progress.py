@@ -58,13 +58,13 @@ class SparkProgress(Plugin):
 
         if not len(jobs) == 0:
             current_job = jobs[self.current_job_id]
-            
+
             if current_job['status'] == 'FAILED':
                 self.current_job_id = len(jobs) - 1
 
             elif current_job['status'] == 'SUCCEEDED':
                 elapsed_time = float(self._get_elapsed_time(
-                               current_job['submissionTime']))            
+                               current_job['submissionTime']))
 
                 self.remaining_time = self.remaining_time - elapsed_time
 
@@ -83,10 +83,10 @@ class SparkProgress(Plugin):
                 # Elapsed Time
                 elapsed_time = float(self._get_elapsed_time(
                                current_job['submissionTime']))
-                
+
                 # Reference Value
                 ref_value = (elapsed_time / self.job_expected_time)
-                
+
                 # Error
                 error = job_progress - ref_value
                 
@@ -98,9 +98,9 @@ class SparkProgress(Plugin):
                 application_progress_error['dimensions'] = self.dimensions
 
                 print application_progress_error['value']
-                
+
                 self.monasca.send_metrics([application_progress_error])
-                
+
             time.sleep(MONITORING_INTERVAL)
 
 
@@ -123,7 +123,6 @@ class SparkProgress(Plugin):
 
     def monitoring_application(self):
         try:
-
             job_request = requests.get(self.submission_url
                           + ':4040/api/v1/applications/'
                           + self.app_id + '/jobs')
@@ -131,8 +130,6 @@ class SparkProgress(Plugin):
             self._publish_measurement(job_request)
 
         except Exception as ex:
-            # FIXME: @armstrongmsg - self.attempts is not updated anywhere. 
-            #        I think you should remove it from this message.
             print ("Error: No application found for %s. %s remaining attempts"
                    % (self.app_id, self.attempts))
 
