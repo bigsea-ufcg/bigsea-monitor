@@ -59,7 +59,10 @@ class SparkProgress(Plugin):
         if not len(jobs) == 0:
             current_job = jobs[self.current_job_id]
             
-            if current_job['status'] == 'SUCCEEDED':
+            if current_job['status'] == 'FAILED':
+                self.current_job_id = len(jobs) - 1
+
+            elif current_job['status'] == 'SUCCEEDED':
                 elapsed_time = float(self._get_elapsed_time(
                                current_job['submissionTime']))            
 
