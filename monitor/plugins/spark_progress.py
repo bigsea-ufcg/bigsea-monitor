@@ -90,8 +90,8 @@ class SparkProgress(Plugin):
                 # Error
                 error = job_progress - ref_value
                 
-                application_progress_error['name'] = 'application-progress.\
-                                                      error'
+                application_progress_error['name'] = ('application-progress'
+                                                      '.error')
 
                 application_progress_error['value'] = error
                 application_progress_error['timestamp'] = time.time() * 1000
