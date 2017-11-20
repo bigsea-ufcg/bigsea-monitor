@@ -33,3 +33,6 @@ host_port = config.getint('service', 'port')
 use_debug = config.get('service', 'debug')
 
 os_keypair = config.get('credentials', 'key_pair')
+mesos_cluster_addr = ('credentials', 'mesos_cluster_addr')
+mesos_password = ('credentials', 'mesos_password')
+mesos_username = ('credentials', 'mesos_username')
