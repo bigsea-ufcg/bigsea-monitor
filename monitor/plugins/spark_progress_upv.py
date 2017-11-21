@@ -58,12 +58,11 @@ class SparkProgressUPV(Plugin):
 
         self.spark_id = self._discover_id_from_spark()
 
-    def _publish_measurement(self, job_request):
+    def _publish_measurement(self, jobs):
 
         application_progress_error = {}
 
         # Init
-        jobs = job_request.json()
         jobs.reverse()
 
         if not len(jobs) == 0:
@@ -132,7 +131,7 @@ class SparkProgressUPV(Plugin):
 
     def _discover_id_from_spark(self):
         for i in range(30):
-            i, o, e = self.conn.exec_command('%s/api/v1/applications' % self.submission_url)
+            i, o, e = self.conn.exec_command('curl %s/api/v1/applications' % self.submission_url)
             applications_running = json.loads(o.read())
 
             for app in applications_running:
@@ -144,7 +143,7 @@ class SparkProgressUPV(Plugin):
         return None
 
     def _get_progress(self, spark_id):
-        i, o, e = self.conn.exec_command('%s/api/v1/applications/%s/jobs'
+        i, o, e = self.conn.exec_command('curl %s/api/v1/applications/%s/jobs'
                                          % (self.submission_url,
                                             spark_id))
 
