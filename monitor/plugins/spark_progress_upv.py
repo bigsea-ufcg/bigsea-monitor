@@ -56,7 +56,7 @@ class SparkProgressUPV(Plugin):
                           username=api.mesos_username,
                           password=api.mesos_password)
 
-
+        self.spark_id = self._discover_id_from_spark()
 
     def _publish_measurement(self, job_request):
 
@@ -131,12 +131,15 @@ class SparkProgressUPV(Plugin):
         return elapsed_time.seconds
 
     def _discover_id_from_spark(self):
-        i, o, e = self.conn.exec_command('%s/api/v1/applications' % self.submission_url)
-        applications_running = json.loads(o.read())
+        for i in range(30):
+            i, o, e = self.conn.exec_command('%s/api/v1/applications' % self.submission_url)
+            applications_running = json.loads(o.read())
 
-        for app in applications_running:
-            if app['name'] == self.app_id:
-                return app['id']
+            for app in applications_running:
+                if app['name'] == self.app_id:
+                    return app['id']
+
+            time.sleep(1)
 
         return None
 
@@ -149,8 +152,7 @@ class SparkProgressUPV(Plugin):
 
     def monitoring_application(self):
         try:
-            spark_id = self._discover_id_from_spark()
-            job_request = self._get_progress(spark_id)
+            job_request = self._get_progress(self.spark_id)
 
             self._publish_measurement(job_request)
 
