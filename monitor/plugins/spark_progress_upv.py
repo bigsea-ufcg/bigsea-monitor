@@ -30,7 +30,7 @@ TIME_PROGRESS_FILE = "time_progress.log"
 MONITORING_INTERVAL = 2
 
 
-class SparkProgress(Plugin):
+class SparkProgressUPV(Plugin):
 
     def __init__(self, app_id, info_plugin, collect_period, retries=60):
         Plugin.__init__(self, app_id, info_plugin,
