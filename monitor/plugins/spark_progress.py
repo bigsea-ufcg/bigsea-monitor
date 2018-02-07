@@ -39,9 +39,10 @@ class SparkProgress(Plugin):
         self.expected_time = info_plugin['expected_time']
 
         self.remaining_time = int(self.expected_time)
-        self.job_expected_time = int(self.expected_time)
 
         self.number_of_jobs = int(info_plugin['number_of_jobs'])
+        self.job_expected_time = (float(self.expected_time) /
+                                  float(self.number_of_jobs))
         self.current_job_id = 0
 
         self.dimensions = {'application_id': self.app_id,
@@ -88,8 +89,11 @@ class SparkProgress(Plugin):
                 ref_value = (elapsed_time / self.job_expected_time)
 
                 # Error
-                error = job_progress - ref_value
-                
+                if self.job_expected_time < 0.0:
+                    error = 1.0
+                else:
+                    error = job_progress - ref_value
+
                 application_progress_error['name'] = ('application-progress'
                                                       '.error')
 
@@ -97,28 +101,20 @@ class SparkProgress(Plugin):
                 application_progress_error['timestamp'] = time.time() * 1000
                 application_progress_error['dimensions'] = self.dimensions
 
-                print application_progress_error['value']
-
                 self.monasca.send_metrics([application_progress_error])
 
             time.sleep(MONITORING_INTERVAL)
 
 
     def _get_elapsed_time(self, gmt_timestamp):
-        try:
-            local_tz = tzlocal.get_localzone()
+        submission_date = datetime.strptime(gmt_timestamp,
+                                            '%Y-%m-%dT%H:%M:%S.%fGMT')
 
-        except Exception as e:
-            local_tz = "America/Recife"
-            local_tz = pytz.timezone(local_tz)
+        submission_timestamp = time.mktime(submission_date.timetuple())
+        this_timestamp = time.time()
+        elapsed_time = this_timestamp - submission_timestamp
 
-        date_time = datetime.strptime(gmt_timestamp, '%Y-%m-%dT%H:%M:%S.%fGMT')
-        date_time = date_time.replace(tzinfo=pytz.utc).astimezone(local_tz)
-        date_time = date_time.replace(tzinfo=None)
-        datetime_now = datetime.now()
-        elapsed_time = datetime_now - date_time
-
-        return elapsed_time.seconds
+        return elapsed_time
 
 
     def monitoring_application(self):
