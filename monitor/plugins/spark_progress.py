@@ -89,15 +89,14 @@ class SparkProgress(Plugin):
                 ref_value = (elapsed_time / self.job_expected_time)
 
                 # Error
-                if self.job_expected_time < 0.0:
-                    error = 1.0
-                else:
-                    error = job_progress - ref_value
+                error = job_progress - ref_value
 
                 application_progress_error['name'] = ('application-progress'
                                                       '.error')
 
                 application_progress_error['value'] = error
+                application_progress_error['job_progress'] = job_progress
+                application_progress_error['ref_value'] = ref_value
                 application_progress_error['timestamp'] = time.time() * 1000
                 application_progress_error['dimensions'] = self.dimensions
 
