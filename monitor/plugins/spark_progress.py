@@ -89,7 +89,10 @@ class SparkProgress(Plugin):
                 ref_value = (elapsed_time / self.job_expected_time)
 
                 # Error
-                error = job_progress - ref_value
+                if self.job_expected_time < 0.0:
+                    error = -1.0
+                else:
+                    error = job_progress - ref_value
 
                 application_progress_error['name'] = ('application-progress'
                                                       '.error')
@@ -106,11 +109,17 @@ class SparkProgress(Plugin):
 
 
     def _get_elapsed_time(self, gmt_timestamp):
+        local_tz = tzlocal.get_localzone()
+
         submission_date = datetime.strptime(gmt_timestamp,
                                             '%Y-%m-%dT%H:%M:%S.%fGMT')
 
+        submission_date = submission_date.replace(tzinfo=pytz.utc).astimezone(local_tz)
+        submission_date = submission_date.replace(tzinfo=None)
+
         submission_timestamp = time.mktime(submission_date.timetuple())
         this_timestamp = time.time()
+
         elapsed_time = this_timestamp - submission_timestamp
 
         return elapsed_time
