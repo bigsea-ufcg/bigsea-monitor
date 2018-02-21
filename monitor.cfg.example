@@ -15,4 +15,7 @@ retries = 30
 
 [credentials]
 key_pair = /home/ubuntu/bigsea-ufcg.pem
+mesos_cluster_addr =
+mesos_password =
+mesos_username =
 
