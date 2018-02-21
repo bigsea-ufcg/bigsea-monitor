@@ -21,11 +21,14 @@ import requests
 import tzlocal
 from monitor.monasca.manager import MonascaMonitor
 from monitor.plugins.base import Plugin
+from monitor.utils.logger import Log, configure_logging
 
 LOG_FILE = "progress.log"
 TIME_PROGRESS_FILE = "time_progress.log"
-MONITORING_INTERVAL = 2
+MONITORING_INTERVAL = 1
 
+plugin_log = Log("Spark_Progress", "monitor.log")
+configure_logging()
 
 class SparkProgress(Plugin):
 
@@ -38,19 +41,24 @@ class SparkProgress(Plugin):
         self.submission_url = info_plugin['spark_submisson_url']
         self.expected_time = info_plugin['expected_time']
 
-        self.remaining_time = int(self.expected_time)
-        self.job_expected_time = int(self.expected_time)
 
         self.number_of_jobs = int(info_plugin['number_of_jobs'])
+        self.job_expected_time = (float(self.expected_time) 
+                                  / float(self.number_of_jobs))
+
+        self.remaining_time = float(self.expected_time)
         self.current_job_id = 0
 
+        self.app_id = app_id
         self.dimensions = {'application_id': self.app_id,
                            'service': 'spark-sahara'}
 
 
     def _publish_measurement(self, job_request):
 
-        application_progress_error = {}
+        progress_error_metric = {}
+        job_progress_metric = {}
+        ref_value_metric = {}
 
         # Init
         jobs = job_request.json()
@@ -84,41 +92,82 @@ class SparkProgress(Plugin):
                 elapsed_time = float(self._get_elapsed_time(
                                current_job['submissionTime']))
 
+                plugin_log.log("%s | %s: Elapsed time: %.2f - Expected time: %.2f" % 
+                    (time.strftime("%H:%M:%S"),
+                     self.app_id,
+                     elapsed_time,
+                     self.job_expected_time))
+
                 # Reference Value
                 ref_value = (elapsed_time / self.job_expected_time)
 
                 # Error
-                error = job_progress - ref_value
+                if self.job_expected_time < 0.0:
+                    error = -1.0
+                else:
+                    error = job_progress - ref_value
                 
-                application_progress_error['name'] = ('application-progress'
-                                                      '.error')
+                progress_error_metric['name'] = ('application-progress.error')
+                progress_error_metric['value'] = error
+                progress_error_metric['timestamp'] = time.time() * 1000
+                progress_error_metric['dimensions'] = self.dimensions
 
-                application_progress_error['value'] = error
-                application_progress_error['timestamp'] = time.time() * 1000
-                application_progress_error['dimensions'] = self.dimensions
+                job_progress_metric['name'] = ('application-progress.job_progress')
+                job_progress_metric['value'] = job_progress
+                job_progress_metric['timestamp'] = time.time() * 1000
+                job_progress_metric['dimensions'] = self.dimensions
 
-                print application_progress_error['value']
+                ref_value_metric['name'] = ('application-progress.ref_value')
+                ref_value_metric['value'] = ref_value
+                ref_value_metric['timestamp'] = time.time() * 1000
+                ref_value_metric['dimensions'] = self.dimensions
 
-                self.monasca.send_metrics([application_progress_error])
+                log_string = ("%s | %s: Ref value: %.2f - Job progress: %.2f" % 
+                    (time.strftime("%H:%M:%S"),
+                     self.app_id,
+                     ref_value,
+                     job_progress))
+
+                plugin_log.log(log_string)
+
+                log_string = ("%s | %s: Job: %d - Progress error: %.2f" % 
+                    (time.strftime("%H:%M:%S"), 
+                     self.app_id,
+                     self.current_job_id,
+                     float(progress_error_metric['value'])))
+
+                plugin_log.log(log_string)
+
+                print progress_error_metric['value']
+
+                self.monasca.send_metrics([progress_error_metric])
+                self.monasca.send_metrics([job_progress_metric])
+                self.monasca.send_metrics([ref_value_metric])
 
             time.sleep(MONITORING_INTERVAL)
 
 
     def _get_elapsed_time(self, gmt_timestamp):
-        try:
-            local_tz = tzlocal.get_localzone()
+        local_tz = tzlocal.get_localzone()
 
-        except Exception as e:
-            local_tz = "America/Recife"
-            local_tz = pytz.timezone(local_tz)
+        submission_date = datetime.strptime(gmt_timestamp,
+                                            '%Y-%m-%dT%H:%M:%S.%fGMT')
 
-        date_time = datetime.strptime(gmt_timestamp, '%Y-%m-%dT%H:%M:%S.%fGMT')
-        date_time = date_time.replace(tzinfo=pytz.utc).astimezone(local_tz)
-        date_time = date_time.replace(tzinfo=None)
-        datetime_now = datetime.now()
-        elapsed_time = datetime_now - date_time
+        submission_date = submission_date.replace(tzinfo=pytz.utc).astimezone(local_tz)
+        submission_date = submission_date.replace(tzinfo=None)
 
-        return elapsed_time.seconds
+        submission_timestamp = time.mktime(submission_date.timetuple())
+        this_timestamp = time.time()
+
+        plugin_log.log("%s | %s: Submission timestamp: %.2f - This timestamp: %.2f" % 
+                      (time.strftime("%H:%M:%S"), 
+                       self.app_id, 
+                       submission_timestamp,
+                       this_timestamp))
+        
+        elapsed_time = this_timestamp - submission_timestamp
+
+        return elapsed_time
 
 
     def monitoring_application(self):
