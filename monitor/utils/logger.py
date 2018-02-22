@@ -34,10 +34,10 @@ class TableLog:
     def __init__(self, name, output_file_path):
         self.logger = Log(name, output_file_path)
         self.table = texttable.Texttable()
-        self.table.set_cols_align(["c", "c", "c", 'c', 'c', 'c'])
-        self.table.set_cols_width([8, 24, 15, 15, 15, 26])
+        self.table.set_cols_align(["c", "c", "c", 'c', 'c', 'c', 'c'])
+        self.table.set_cols_width([8, 24, 15, 15, 15, 15, 26])
         
-    def log(self, app_id, job_progress, time_progress, progress_error, action):
+    def log(self, app_id, plugin_name, job_progress, time_progress, progress_error, action):
 #       line = "%s %s %s %s %s %s %s" % (timestamp, app_id, job_progress, time_progress, previous_cap, current_cap, action)
         timestamp = time.strftime("%H:%M:%S")
 
@@ -51,23 +51,22 @@ class TableLog:
         else:
             time_progress_formatted = time_progress
 
-        if previous_cap != '--':
-            previous_cap_formatted = str(previous_cap) + "%"
+        if progress_error != '--':
+            progress_error_formatted = str(progress_error) + "%"
         else:
-            previous_cap_formatted = previous_cap
+            progress_error_formatted = progress_error
 
-        if current_cap != '--':
-            current_cap_formatted = str(current_cap) + "%"
-        else:
-            current_cap_formatted = current_cap
+        line = [timestamp, app_id, plugin_name, job_progress_formatted,
+                time_progress_formatted, progress_error_formatted, action]
 
-        line = [timestamp, app_id, job_progress_formatted, time_progress_formatted, progress_error_formatted, action]
         self.table.add_row(line)
         last_line = self.table.draw().split('\n')[-2]
         self.logger.log(last_line)
 
     def header_log(self):
-        header_row = [["Time", "Application ID", "Job Progress", "Time Progress", "Progress Error", 'Action']]
+        header_row = [["Time", "Application ID", "Plugin Name", "Job Progress",
+                       "Time Progress", "Progress Error", 'Action']]
+
         self.table.add_rows(header_row)
         last_line = self.table.draw().split('\n')[:3]
         self.logger.log(last_line[0])
