@@ -15,6 +15,7 @@
 
 import threading
 import time
+from monitor.monasca.manager import MonascaMonitor
 
 
 # Plugins must extend Thread to facilitate each parallel plugin execution
@@ -39,6 +40,16 @@ class Plugin(threading.Thread):
     def stop(self):
         print "The %s is stopping for %s..." % (type(self).__name__, self.app_id)
         self.running = False
+
+        monasca = MonascaMonitor()
+        app_progress_metric = {}
+        app_progress_metric['name'] = ('application-progress.app_progress')
+        app_progress_metric['value'] = 100
+        app_progress_metric['timestamp'] = time.time() * 1000
+        dimensions = {'application_id': self.app_id,
+                      'service': 'spark-sahara'}
+        app_progress_metric['dimensions'] = dimensions
+        monasca.send_metrics([app_progress_metric])
 
     # This method must be subscribed by each plugin that extends this base class
     def monitoring_application(self):

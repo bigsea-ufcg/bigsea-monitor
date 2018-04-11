@@ -53,18 +53,29 @@ class SparkProgress(Plugin):
         self.dimensions = {'application_id': self.app_id,
                            'service': 'spark-sahara'}
 
+        self.job_ratio = 1.0 / self.number_of_jobs
+        self.first_submission_time = None
+
 
     def _publish_measurement(self, job_request):
 
         progress_error_metric = {}
         job_progress_metric = {}
-        ref_value_metric = {}
+        time_progress_metric = {}
+        total_time_progress_metric = {}
+        app_progress_metric = {}
+        new_progress_error_metric = {}
 
         # Init
         jobs = job_request.json()
         jobs.reverse()
 
         if not len(jobs) == 0:
+
+            # (Demo)
+            if self.current_job_id is 0:
+                self.first_submission_time = jobs[self.current_job_id]['submissionTime']
+
             current_job = jobs[self.current_job_id]
 
             if current_job['status'] == 'FAILED':
@@ -79,14 +90,29 @@ class SparkProgress(Plugin):
                 self.current_job_id = len(jobs) - 1
 
                 # Job Time
-                self.job_expected_time = (self.remaining_time
-                                 / (float(self.number_of_jobs)
-                                 - float(self.current_job_id)))
+                if self.remaining_time <= 0.0:
+                    self.job_expected_time = -1
+                else: 
+                    self.job_expected_time = (self.remaining_time
+                                     / (float(self.number_of_jobs)
+                                     - float(self.current_job_id)))
 
             elif current_job['status'] == 'RUNNING':
                 # Job Progress
                 job_progress = (current_job['numCompletedTasks']
                                 / float(current_job['numTasks']))
+
+                # Application Progress (Demo)
+                app_progress = self.job_ratio * (self.current_job_id + job_progress)
+
+                # Total Elapsed Time (Demo)
+                total_elapsed_time = float(self._get_elapsed_time(self.first_submission_time))
+
+                # Total Time Progress (Demo)
+                total_time_progress = float(total_elapsed_time / self.expected_time)
+
+                # New Progress Error (Demo)
+                new_progress_error = app_progress - total_time_progress
 
                 # Elapsed Time
                 elapsed_time = float(self._get_elapsed_time(
@@ -98,34 +124,46 @@ class SparkProgress(Plugin):
                      elapsed_time,
                      self.job_expected_time))
 
-                # Reference Value
-                ref_value = (elapsed_time / self.job_expected_time)
-
                 # Error
-                if self.job_expected_time < 0.0:
+                if self.job_expected_time == -1:
+                    time_progress = 1
                     error = -1.0
                 else:
-                    error = job_progress - ref_value
+                    time_progress = (elapsed_time / self.job_expected_time)
+
+                    if time_progress > 1: time_progress = 1
+
+                    error = job_progress - time_progress
                 
                 progress_error_metric['name'] = ('application-progress.error')
-                progress_error_metric['value'] = error
+                progress_error_metric['value'] = new_progress_error # error
                 progress_error_metric['timestamp'] = time.time() * 1000
                 progress_error_metric['dimensions'] = self.dimensions
 
+                app_progress_metric['name'] = ('application-progress.app_progress')
+                app_progress_metric['value'] = app_progress * 100
+                app_progress_metric['timestamp'] = time.time() * 1000
+                app_progress_metric['dimensions'] = self.dimensions
+
+                total_time_progress_metric['name'] = ('application-progress.total_time_progress')
+                total_time_progress_metric['value'] = total_time_progress * 100
+                total_time_progress_metric['timestamp'] = time.time() * 1000
+                total_time_progress_metric['dimensions'] = self.dimensions
+
                 job_progress_metric['name'] = ('application-progress.job_progress')
-                job_progress_metric['value'] = job_progress
+                job_progress_metric['value'] = job_progress * 100
                 job_progress_metric['timestamp'] = time.time() * 1000
                 job_progress_metric['dimensions'] = self.dimensions
 
-                ref_value_metric['name'] = ('application-progress.ref_value')
-                ref_value_metric['value'] = ref_value
-                ref_value_metric['timestamp'] = time.time() * 1000
-                ref_value_metric['dimensions'] = self.dimensions
+                time_progress_metric['name'] = ('application-progress.time_progress')
+                time_progress_metric['value'] = time_progress * 100
+                time_progress_metric['timestamp'] = time.time() * 1000
+                time_progress_metric['dimensions'] = self.dimensions
 
                 log_string = ("%s | %s: Ref value: %.2f - Job progress: %.2f" % 
                     (time.strftime("%H:%M:%S"),
                      self.app_id,
-                     ref_value,
+                     time_progress,
                      job_progress))
 
                 plugin_log.log(log_string)
@@ -142,9 +180,10 @@ class SparkProgress(Plugin):
 
                 self.monasca.send_metrics([progress_error_metric])
                 self.monasca.send_metrics([job_progress_metric])
-                self.monasca.send_metrics([ref_value_metric])
+                self.monasca.send_metrics([time_progress_metric])
+                self.monasca.send_metrics([total_time_progress_metric, app_progress_metric])
 
-            time.sleep(MONITORING_INTERVAL)
+#           time.sleep(MONITORING_INTERVAL)
 
 
     def _get_elapsed_time(self, gmt_timestamp):
