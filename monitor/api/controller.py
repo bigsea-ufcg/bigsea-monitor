@@ -22,6 +22,7 @@ from monitor.plugins.spark_progress import SparkProgress
 from monitor.plugins.spark_progress_upv import SparkProgressUPV
 from monitor.plugins.web_log_monitor import WebAppMonitor
 from monitor.plugins.os_generic import OSGeneric
+from monitor.plugins.kubejobs import KubeJobProgress
 
 
 class Controller:
@@ -52,6 +53,9 @@ class Controller:
                 self.app_monitored[app_id] = plugin
             elif plugin_name == "spark-mesos":
                 plugin = SparkProgressUPV(app_id, info_plugin, collect_period, retries=60)
+                self.app_monitored[app_id] = plugin
+            elif plugin_name == "kubejobs":
+                plugin = KubeJobProgress(app_id, info_plugin, collect_period, retries=60)
                 self.app_monitored[app_id] = plugin
 
             print "Starting plugin: %s" % plugin.getName()
