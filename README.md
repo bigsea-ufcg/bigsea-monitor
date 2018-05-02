@@ -1,4 +1,4 @@
-# Asperathos - Monitor
+# BIGSEA Asperathos - Monitor
 
 ## Overview
 On the process of executing an application, the monitor service is responsible for managing all the needed steps to gather metrics from the application and/or its infrastructure and publish it in storage located in the cloud monitoring service (in our case, Monasca). The goal of this metric translation is to enable other components in the framework (e.g., the controller) to be generic, while still being able to process QoS metrics for the application and take decisions based on these metrics.
