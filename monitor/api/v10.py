@@ -24,7 +24,7 @@ rest = u.Rest('v10', __name__)
 
 """ Start monitoring.
 
-    Normal response codes: 204
+    Normal response codes: 202
     Error response codes: 400, 401
 """
 @rest.post('/monitoring/<app_id>')
