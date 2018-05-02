@@ -1,88 +1,36 @@
-# BigSea Monasca Monitor
+# Asperathos - Monitor
 
-#### How to run
+## Overview
+On the process of executing an application, the monitor service is responsible for managing all the needed steps to gather metrics from the application and/or its infrastructure and publish it in storage located in the cloud monitoring service (in our case, Monasca). The goal of this metric translation is to enable other components in the framework (e.g., the controller) to be generic, while still being able to process QoS metrics for the application and take decisions based on these metrics.
 
+## Requirements
+* Python 2.7 or Python 3.5
+* Linux packages: python-dev and python-pip
+* Python packages: setuptools, tox and flake8
 
-* Configure the monitor.cfg providing the following info:
+To **apt** distros, you can use [pre-install.sh](https://github.com/bigsea-ufcg/bigsea-monitor/tree/refactor/tools/pre-install.sh) to install the requirements.
+
+## Install
+First of all, install **git**. After, you just need to clone the [Monitor repository](https://github.com/bigsea-ufcg/bigsea-monitor.git) in your machine.
+
+### Configuration
+A configuration file is required to run the Monitor. Edit and fill your monitor.cfg in the root of Monitor directory. Make sure you have fill up all fields before run.
+You can find a template in [config-example.md](https://github.com/bigsea-ufcg/bigsea-monitor/tree/refactor/docs/config-example.md). 
+
+### Run
+In the Monitor directory, start the service using tox command:
 ```
-[monasca]
-username = <monasca_username>
-password = <password>
-project_name = <monasca_project>
-auth_url = http://<monasca_end_point>:<keystone_port>/v3/
-api_version = 2_0
-
-[service]
-host = <host_ip>
-port = <host_port>
-debug = True
-```
-* Run the main python file to lift the service
-```
-$ ./setup.sh #You must be superuser
-$ ./run.sh
-```
-
-#### How to start monitoring
-
-POST /start/<app_id>
-Request body:
-```javascript
-{
-	"plugin": "<plugin_name>",
-	"info_plugin":{<info_keys>: <info_values>},
-	"collect_period": <interval_in_seconds>
-}
+$ tox -e venv -- monitor
 ```
 
-#### How to stop monitoring
+## Avaliable plugins
+* [Spark Sahara](https://github.com/bigsea-ufcg/bigsea-monitor/tree/refactor/docs/plugins/spark_sahara.md)
+* [Spark Mesos](https://github.com/bigsea-ufcg/bigsea-monitor/tree/refactor/docs/plugins/spark_mesos.md)
+* [Openstack Generic](https://github.com/bigsea-ufcg/bigsea-monitor/tree/refactor/docs/plugins/openstack_generic.md)
+* [Web Application](https://github.com/bigsea-ufcg/bigsea-monitor/tree/refactor/docs/plugins/web_app.md)
 
-POST /stop/<app_id>
+## Monitor REST API
+Endpoints is avaliable on [restapi-endpoints.md](https://github.com/bigsea-ufcg/bigsea-monitor/tree/refactor/docs/restapi-endpoints.md) documentation.
 
-#### Plugins Examples
-
-##### SparkProgress
-
-POST /start/app-20170411192759-0026
-Request body:
-```javascript
-{
-	"plugin": "spark_progress",
-	"info_plugin":{
-	                "spark_submisson_url":"http://10.11.4.11",
-					"expected_time": 500
-
-	},
-	"collect_period": 2
-}
-```
-
-##### Web-App
-
-POST /start/web-app-01
-Request body:
-```javascript
-{
-	"plugin": "web_app_monitor",
-	"info_plugin": {"host_ip":"10.57.4.1",
-			"host_username": "ubuntu",
-			"log_path":"/var/log/web-app.log"
-	},
-	"collect_period": 1
-}
-```
-
-##### OpenStack Generic
-
-POST /start/os-generic-s8bc3
-Request body:
-```javascript
-{
-	"plugin": "os_generic",
-	"info_plugin": {"host_ip":"10.57.4.1",
-			"expected_time": 360,
-			"log_path":"/var/log/web-app.log"
-	},
-	"collect_period": 1
-}
-```
+## Plugin development
+See [plugin-development.md](https://github.com/bigsea-ufcg/bigsea-monitor/tree/refactor/docs/plugin-development.md).
