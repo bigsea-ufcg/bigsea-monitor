@@ -25,7 +25,7 @@ rest = u.Rest('v10', __name__)
 """ Start monitoring.
 
     Normal response codes: 202
-    Error response codes: 400, 401
+    Error response codes: 400
 """
 @rest.post('/monitoring/<app_id>')
 def start_monitoring(data, app_id):
@@ -35,8 +35,8 @@ def start_monitoring(data, app_id):
 """ Stop monitoring.
 
     Normal response codes: 204
-    Error response codes: 400, 401
+    Error response codes: 400
 """
 @rest.put('/monitoring/<app_id>/stop')
-def stop_monitoring(app_id):
+def stop_monitoring(data, app_id):
     return u.render(api.stop_monitoring(app_id))

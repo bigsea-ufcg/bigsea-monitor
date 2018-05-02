@@ -37,7 +37,7 @@ def start_monitoring(data, app_id):
     Note: some executors need the keypair to access remotely some machine and
     execute the monitoring logic, but this attribute is not mandatory for all
     the executors."""
-
+  
     if 'plugin' not in data.keys() or 'plugin_info' not in data.keys():
         API_LOG.log("Missing parameters in request")
         raise ex.BadRequestException()
@@ -48,6 +48,7 @@ def start_monitoring(data, app_id):
     executor = None
     if app_id not in monitored_apps:
         if plugin == "spark_sahara":
+            return "Ok"
             executor = SparkProgress(app_id, plugin_info, api.retries)
             monitored_apps[app_id] = executor
 
@@ -82,9 +83,5 @@ def stop_monitoring(app_id):
         API_LOG.log("App doesn't exist")
         raise ex.BadRequestException()
 
-    try:
-        # Stop the plugin and remove from the data structure
-        monitored_apps.pop(app_id, None).stop()
-    except Exception as ex:
-        ex.message
-        pass
+    # Stop the plugin and remove from the data structure
+    monitored_apps.pop(app_id, None).stop()
