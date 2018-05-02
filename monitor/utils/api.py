@@ -14,14 +14,15 @@
 # limitations under the License.
 
 import traceback
+
 import flask
 from werkzeug import datastructures
 
-from logger import *
-from utils import *
+from monitor import exceptions as ex
+from monitor.utils import serializer as u_serializer
+from monitor.utils.logger import *
 
-
-LOG = Log("Monitor_UtilsAPI", "Monitor_utilsapi.log")
+LOG = Log("UtilsAPI", "utilsapi.log")
 
 
 class Rest(flask.Blueprint):
@@ -34,7 +35,7 @@ class Rest(flask.Blueprint):
     def post_file(self, rule, status_code=202):
         return self._mroute('POST', rule, status_code, file_upload=True)
 
-    def put(self, rule, status_code=202):
+    def put(self, rule, status_code=204):
         return self._mroute('PUT', rule, status_code)
 
     def put_file(self, rule, status_code=202):
@@ -72,6 +73,14 @@ class Rest(flask.Blueprint):
                     if flask.request.method in ['POST', 'PUT', 'PATCH']:
                         kwargs['data'] = request_data()
                     return func(**kwargs)
+                except ex.UnauthorizedException as e:
+                    return unauthorized(e)
+                except ex.Forbidden as e:
+                    return access_denied(e)
+                except ex.BadRequestException as e:
+                    return bad_request(e)
+                except ex.SaharaException as e:
+                    return bad_request(e)
                 except Exception as e:
                     return internal_error(500, 'Internal Server Error', e)
 
@@ -124,14 +133,14 @@ def render(res=None, resp_type=None, status=None, **kwargs):
     if not resp_type:
         resp_type = RT_JSON
 
-    serializer = None
+    serializer1 = None
     if "application/json" in resp_type:
         resp_type = RT_JSON
-        serializer = JSONDictSerializer()
+        serializer1 = u_serializer.JSONDictSerializer()
     else:
         abort_and_log(400, "Content type '%s' isn't supported" % resp_type)
 
-    body = serializer.serialize(res)
+    body = serializer1.serialize(res)
     resp_type = str(resp_type)
 
     return flask.Response(response=body, status=status_code,
@@ -152,7 +161,7 @@ def request_data():
     deserializer = None
     content_type = flask.request.mimetype
     if not content_type or content_type in RT_JSON:
-        deserializer = JSONDeserializer()
+        deserializer = u_serializer.JSONDeserializer()
     else:
         abort_and_log(400,
                       "Content type '%s' isn't supported" % content_type)
@@ -161,14 +170,16 @@ def request_data():
     parsed_data = deserializer.deserialize(flask.request.data)['body']
     flask.request.parsed_data = parsed_data
 
+    return flask.request.parsed_data
+
 
 def get_request_args():
     return flask.request.args
 
 
 def abort_and_log(status_code, descr, exc=None):
-    LOG.log("Request aborted with status code {code} and "
-            "message '{message}'").format(code=status_code, message=descr)
+    LOG.log("Request aborted with status code code} and "
+            "message '{message}'".format(code=status_code, message=descr))
 
     if exc is not None:
         LOG.log(traceback.format_exc())
@@ -190,8 +201,8 @@ def render_error_message(error_code, error_message, error_name):
 
 
 def internal_error(status_code, descr, exc=None):
-    LOG.log(descr)
-# .format(code=status_code, message=descr)
+    LOG.log("Request aborted with status code {code} and "
+            "message '{message}'".format(code=status_code, message=descr))
 
     if exc is not None:
         LOG.log(traceback.format_exc())
@@ -208,9 +219,21 @@ def bad_request(error):
 
     LOG.log("Validation Error occurred: "
             "error_code={code}, error_message={message}, "
-            "error_name={name}").format(code=error_code,
-                                        message=error.message,
-                                        name=error.code)
+            "error_name={name}".format(code=error_code,
+                                       message=error.message,
+                                       name=error.code))
+
+    return render_error_message(error_code, error.message, error.code)
+
+
+def unauthorized(error):
+    error_code = 401
+
+    LOG.log("Authorization Error occurred: "
+            "error_code={code}, error_message={message}, "
+            "error_name={name}".format(code=error_code,
+                                       message=error.message,
+                                       name=error.code))
 
     return render_error_message(error_code, error.message, error.code)
 
@@ -220,9 +243,9 @@ def access_denied(error):
 
     LOG.log("Access Denied: "
             "error_code={code}, error_message={message}, "
-            "error_name={name}").format(code=error_code,
-                                        message=error.message,
-                                        name=error.code)
+            "error_name={name}".format(code=error_code,
+                                       message=error.message,
+                                       name=error.code))
 
     return render_error_message(error_code, error.message, error.code)
 
@@ -232,8 +255,8 @@ def not_found(error):
 
     LOG.log("Not Found exception occurred: "
             "error_code={code}, error_message={message}, "
-            "error_name={name}").format(code=error_code,
-                                        message=error.message,
-                                        name=error.code)
+            "error_name={name}".format(code=error_code,
+                                       message=error.message,
+                                       name=error.code))
 
     return render_error_message(error_code, error.message, error.code)

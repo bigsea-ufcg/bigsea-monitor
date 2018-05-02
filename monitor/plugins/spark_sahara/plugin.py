@@ -29,19 +29,19 @@ MONITORING_INTERVAL = 2
 
 class SparkProgress(Plugin):
 
-    def __init__(self, app_id, info_plugin, collect_period, retries=60):
-        Plugin.__init__(self, app_id, info_plugin,
+    def __init__(self, app_id, plugin_info, retries=60):
+        Plugin.__init__(self, app_id, plugin_info,
                         collect_period, retries=retries)
 
         self.monasca = MonascaMonitor()
 
-        self.submission_url = info_plugin['spark_submisson_url']
-        self.expected_time = info_plugin['expected_time']
+        self.submission_url = plugin_info['spark_submisson_url']
+        self.expected_time = plugin_info['expected_time']
 
         self.remaining_time = int(self.expected_time)
         self.job_expected_time = int(self.expected_time)
 
-        self.number_of_jobs = int(info_plugin['number_of_jobs'])
+        self.number_of_jobs = int(plugin_info['number_of_jobs'])
         self.current_job_id = 0
 
         self.dimensions = {'application_id': self.app_id,
