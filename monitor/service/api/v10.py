@@ -48,7 +48,6 @@ def start_monitoring(data, app_id):
     executor = None
     if app_id not in monitored_apps:
         if plugin == "spark_sahara":
-            import pdb; pdb.set_trace()
             executor = SparkProgress(app_id, plugin_info, api.retries)
             monitored_apps[app_id] = executor
 
@@ -79,6 +78,10 @@ def start_monitoring(data, app_id):
 
 
 def stop_monitoring(app_id):
+    if app_id not in monitored_apps.keys():
+        API_LOG.log("App doesn't exist")
+        raise ex.BadRequestException()
+
     try:
         # Stop the plugin and remove from the data structure
         monitored_apps.pop(app_id, None).stop()
