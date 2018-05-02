@@ -16,7 +16,7 @@
 import paramiko
 import time
 
-from monitor.monasca.manager import MonascaMonitor
+from monitor.utils.monasca.manager import MonascaMonitor
 from monitor.plugins.base import Plugin
 
 

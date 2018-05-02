@@ -21,7 +21,7 @@ import paramiko
 import pytz
 import requests
 import tzlocal
-from monitor.monasca.manager import MonascaMonitor
+from monitor.utils.monasca.manager import MonascaMonitor
 from monitor.plugins.base import Plugin
 from monitor import api as api
 

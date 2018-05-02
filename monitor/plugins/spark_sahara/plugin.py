@@ -19,7 +19,7 @@ from datetime import datetime
 import pytz
 import requests
 import tzlocal
-from monitor.monasca.manager import MonascaMonitor
+from monitor.utils.monasca.manager import MonascaMonitor
 from monitor.plugins.base import Plugin
 
 LOG_FILE = "progress.log"
