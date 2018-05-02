@@ -20,7 +20,7 @@ import sys
 
 from monascaclient import client as monclient
 from keystoneclient.v2_0 import Client as KSClient
-from monitor import api
+from monitor.service import api
 
 
 class MonascaMonitor:
@@ -62,19 +62,13 @@ class MonascaMonitor:
 
     def _get_monasca_client(self):
 
-        # Authenticate to Keystone
-        ks = KSClient(
+        # Monasca Client
+        monasca_client = monclient.Client(self.monasca_api_version,
             auth_url=self.monasca_auth_url,
             username=self.monasca_username,
             password=self.monasca_password,
             project_name=self.monasca_project_name,
-            debug=False
-        )
-
-        # Monasca Client
-        monasca_client = monclient.Client(self.monasca_api_version, ks.monasca_url,
-                                          token=ks.token,
-                                          debug=False)
+            debug=False)
 
         return monasca_client
 
