@@ -22,8 +22,8 @@ from monitor.plugins.base import Plugin
 
 class WebAppMonitor(Plugin):
 
-    def __init__(self, app_id, info_plugin, collect_period, keypair, retries=60):
-        Plugin.__init__(self, app_id, info_plugin, collect_period, retries=retries)
+    def __init__(self, app_id, info_plugin, keypair, retries=60):
+        Plugin.__init__(self, app_id, info_plugin, collect_period=5, retries=retries)
         self.app_id = app_id
         self.host_ip = info_plugin['host_ip']
         self.keypair_path = keypair

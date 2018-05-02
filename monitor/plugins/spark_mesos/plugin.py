@@ -32,9 +32,9 @@ MONITORING_INTERVAL = 2
 
 class SparkProgressUPV(Plugin):
 
-    def __init__(self, app_id, info_plugin, collect_period, retries=60):
+    def __init__(self, app_id, info_plugin, retries=60):
         Plugin.__init__(self, app_id, info_plugin,
-                        collect_period, retries=retries)
+                        collect_period=5, retries=retries)
 
         self.monasca = MonascaMonitor()
 

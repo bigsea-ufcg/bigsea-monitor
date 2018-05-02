@@ -31,7 +31,7 @@ class SparkProgress(Plugin):
 
     def __init__(self, app_id, plugin_info, retries=60):
         Plugin.__init__(self, app_id, plugin_info,
-                        collect_period, retries=retries)
+                        collect_period=5, retries=retries)
 
         self.monasca = MonascaMonitor()
 

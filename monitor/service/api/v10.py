@@ -22,7 +22,7 @@ from monitor import exceptions as ex
 from monitor.utils.logger import Log
 from monitor.plugins.spark_sahara.plugin import SparkProgress
 from monitor.plugins.spark_mesos.plugin import SparkProgressUPV
-from monitor.plugins.web_log_monitor.plugin import WebAppMonitor
+from monitor.plugins.web_app.plugin import WebAppMonitor
 from monitor.plugins.openstack_generic.plugin import OSGeneric
 
 
@@ -52,7 +52,7 @@ def start_monitoring(data, app_id):
             executor = SparkProgress(app_id, plugin_info, api.retries)
             monitored_apps[app_id] = executor
 
-        elif plugin == "web_app_monitor":
+        elif plugin == "web_app":
             executor = WebAppMonitor(app_id, plugin_info, api.os_keypair,
                                      api.retries)
             monitored_apps[app_id] = executor

@@ -22,8 +22,8 @@ from monitor.plugins.base import Plugin
 
 class OSGeneric(Plugin):
 
-    def __init__(self, app_id, info_plugin, collect_period, keypair, retries=60):
-        Plugin.__init__(self, app_id, info_plugin, collect_period, retries=retries)
+    def __init__(self, app_id, info_plugin, keypair, retries=60):
+        Plugin.__init__(self, app_id, info_plugin, collect_period=5, retries=retries)
         self.host_ip = info_plugin['host_ip']
         self.expected_time = info_plugin['expected_time']
         self.keypair_path = keypair
