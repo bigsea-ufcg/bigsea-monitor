@@ -13,12 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import monascaclient.exc as exc
+from monascaclient import exc
 import ConfigParser
 import os
 import sys
 
-from monascaclient import client as monclient, ksclient
+from monascaclient import client as monclient
+from keystoneclient.v2_0 import Client as KSClient
 from monitor import api
 
 
@@ -62,7 +63,7 @@ class MonascaMonitor:
     def _get_monasca_client(self):
 
         # Authenticate to Keystone
-        ks = ksclient.KSClient(
+        ks = KSClient(
             auth_url=self.monasca_auth_url,
             username=self.monasca_username,
             password=self.monasca_password,

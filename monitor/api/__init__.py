@@ -17,8 +17,7 @@ import os
 import sys
 
 config = ConfigParser.RawConfigParser()
-__file__ = os.path.join(sys.path[0], '../../monitor.cfg')
-config.read(__file__)
+config.read('./monitor.cfg')
 
 monasca_endpoint = config.get('monasca', 'monasca_endpoint')
 monasca_username = config.get('monasca', 'username')
