@@ -16,7 +16,7 @@
 import paramiko
 import time
 
-from monitor.utils.monasca.manager import MonascaMonitor
+from monitor.utils.monasca.client import MonascaClient
 from monitor.plugins.base import Plugin
 
 
@@ -31,7 +31,7 @@ class WebAppMonitor(Plugin):
         self.log_path = info_plugin['log_path']
         self.dimensions = {'app_id': self.app_id, 'host': self.host_ip}
         self.last_checked = ''
-        self.monasca = MonascaMonitor()
+        self.monasca = MonascaClient()
 
     def _get_metric_value(self, log):
         value = None

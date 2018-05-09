@@ -21,10 +21,6 @@ from monitor.service import api
 from monitor import exceptions as ex
 from monitor.utils.logger import Log
 from monitor.plugins.builder import MonitorBuilder
-from monitor.plugins.spark_sahara.plugin import SparkProgress
-from monitor.plugins.spark_mesos.plugin import SparkProgressUPV
-from monitor.plugins.web_app.plugin import WebAppMonitor
-from monitor.plugins.openstack_generic.plugin import OSGeneric
 
 
 API_LOG = Log("APIv10", "APIv10.log")
@@ -39,7 +35,7 @@ def start_monitoring(data, app_id):
     Note: some executors need the keypair to access remotely some machine and
     execute the monitoring logic, but this attribute is not mandatory for all
     the executors."""
-  
+ 
     if 'plugin' not in data or 'plugin_info' not in data:
         API_LOG.log("Missing parameters in request")
         raise ex.BadRequestException()

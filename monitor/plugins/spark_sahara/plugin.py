@@ -19,7 +19,7 @@ from datetime import datetime
 import pytz
 import requests
 import tzlocal
-from monitor.utils.monasca.manager import MonascaMonitor
+from monitor.utils.monasca.client import MonascaClient
 from monitor.plugins.base import Plugin
 
 LOG_FILE = "progress.log"
@@ -33,7 +33,7 @@ class SparkProgress(Plugin):
         Plugin.__init__(self, app_id, plugin_info,
                         collect_period=5, retries=retries)
 
-        self.monasca = MonascaMonitor()
+        self.monasca = MonascaClient()
 
         self.submission_url = plugin_info['spark_submisson_url']
         self.expected_time = plugin_info['expected_time']
@@ -49,7 +49,6 @@ class SparkProgress(Plugin):
 
 
     def _publish_measurement(self, job_request):
-
         application_progress_error = {}
 
         # Init
