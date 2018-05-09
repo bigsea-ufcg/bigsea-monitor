@@ -1,3 +1,8 @@
-sudo apt-get update && apt-get install -y build-essential libffi-dev python-pip python-dev libssl-dev
-sudo pip install pytz
-sudo pip install -r requirements.txt
+#!/bin/bash
+
+sudo apt-get update
+sudo apt-get -y install python-dev
+sudo apt-get -y install python-pip
+sudo pip install setuptools
+sudo pip install tox
+sudo pip install flake8
