@@ -7,7 +7,7 @@ Request body:
 ```javascript
 {
 	"plugin": "spark_sahara",
-	"info_plugin":{
+	"plugin_info":{
 	                "spark_submisson_url":"http://10.11.4.11",
 			"expected_time": 500
 	}

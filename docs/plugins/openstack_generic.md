@@ -6,8 +6,9 @@
 Request body:
 ```javascript
 {
-	"plugin": "os_generic",
-	"info_plugin": {"host_ip":"10.57.4.1",
+	"plugin": "openstack_generic",
+	"plugin_info": {
+			"host_ip":"10.57.4.1",
 			"expected_time": 360,
 			"log_path":"/var/log/web-app.log"
 	}
