@@ -4,15 +4,15 @@ from os import path
 here = path.abspath(path.dirname(__file__))
 
 setup(
-    name='Monitor',
+    name='monitor',
 
     version='0.1.0',
 
-    description='Monitoring component',
+    description='Monitor component of BIGSEA Asperathos framework',
 
     url='',
 
-    author='',
+    author='Igor Natanael, Roberto Nascimento Jr.',
     author_email='',
 
     license='Apache 2.0',
@@ -29,7 +29,7 @@ setup(
         'Programming Language :: Python :: 3.5',
 
     ],
-    keywords='webservice application monitoring',
+    keywords='webservice monitoring monasca asperathos bigsea',
 
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
 
