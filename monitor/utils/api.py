@@ -22,6 +22,7 @@ from monitor import exceptions as ex
 from monitor.utils import serializer as u_serializer
 from monitor.utils.logger import *
 
+
 LOG = Log("UtilsAPI", "utilsapi.log")
 
 

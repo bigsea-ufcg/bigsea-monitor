@@ -20,6 +20,7 @@ import sys
 from monitor.service import api
 from monitor import exceptions as ex
 from monitor.utils.logger import Log
+from monitor.plugins.builder import MonitorBuilder
 from monitor.plugins.spark_sahara.plugin import SparkProgress
 from monitor.plugins.spark_mesos.plugin import SparkProgressUPV
 from monitor.plugins.web_app.plugin import WebAppMonitor
@@ -29,6 +30,7 @@ from monitor.plugins.openstack_generic.plugin import OSGeneric
 API_LOG = Log("APIv10", "APIv10.log")
 
 monitored_apps = {}
+builder = MonitorBuilder()
 
 
 def start_monitoring(data, app_id):
@@ -38,39 +40,16 @@ def start_monitoring(data, app_id):
     execute the monitoring logic, but this attribute is not mandatory for all
     the executors."""
   
-    if 'plugin' not in data.keys() or 'plugin_info' not in data.keys():
+    if 'plugin' not in data or 'plugin_info' not in data:
         API_LOG.log("Missing parameters in request")
         raise ex.BadRequestException()
 
     plugin = data['plugin']
     plugin_info = data['plugin_info']
-    
-    executor = None
+   
     if app_id not in monitored_apps:
-        if plugin == "spark_sahara":
-            return "Ok"
-            executor = SparkProgress(app_id, plugin_info, api.retries)
-            monitored_apps[app_id] = executor
-
-        elif plugin == "web_app":
-            executor = WebAppMonitor(app_id, plugin_info, api.os_keypair,
-                                     api.retries)
-            monitored_apps[app_id] = executor
-
-        elif plugin == "openstack_generic":
-            executor = OSGeneric(app_id, plugin_info, api.os_keypair,
-                                 api.retries)
-            monitored_apps[app_id] = executor
-
-        elif plugin == "spark_mesos":
-            executor = SparkProgressUPV(app_id, plugin_info, api.retries)
-            monitored_apps[app_id] = executor
-       
-        else:
-            API_LOG.log("Plugin does not exists")
-            raise ex.BadRequestException()
-
-        API_LOG.log("Starting monitoring: %s" % executor.getName())
+        executor = builder.get_monitor(plugin, app_id, plugin_info)
+        monitored_apps[app_id] = executor
         executor.start()
 
     else:
@@ -79,7 +58,7 @@ def start_monitoring(data, app_id):
 
 
 def stop_monitoring(app_id):
-    if app_id not in monitored_apps.keys():
+    if app_id not in monitored_keys:
         API_LOG.log("App doesn't exist")
         raise ex.BadRequestException()
 

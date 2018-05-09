@@ -22,7 +22,7 @@ from monitor.utils import api as u
 rest = u.Rest('v10', __name__)
 
 
-""" Start monitoring.
+""" Start monitoring a running application.
 
     Normal response codes: 202
     Error response codes: 400
@@ -32,7 +32,7 @@ def start_monitoring(data, app_id):
     return u.render(api.start_monitoring(data, app_id))
 
 
-""" Stop monitoring.
+""" Stop monitoring a running application.
 
     Normal response codes: 204
     Error response codes: 400
