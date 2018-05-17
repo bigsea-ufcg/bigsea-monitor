@@ -12,33 +12,31 @@ This is an important step to enjoy all flexibility and features that this framew
 
 * **monitoring_application(self)**
 	* This method does every necessary step to calculate or capture the metric that must be published. If the metric will be stored into monasca, you must create an object monitor.monasca.manager.MonascaMonitor and use send_metrics([metrics]) to publish the metrics, where [metrics] is a list with the metrics you want to push into monasca and each metric is a dictionary with this following structure:
-
 		* ```
 			metric = {'name':  'application-name.metric-namer'
 			   'value': value
 			   'timestamp': time.time() * 1000
 			   'dimensions': self.dimensions
-			```
+		  ```
+		   
+* **Example**:
 
-Example:
+	* ```
+		class MyNewMonitor:
 
-```
-class MyNewMonitor:
-
-    def __init__(self, app_id, plugin_info, collect_period, retries=100):
-        # set things up
+    		def __init__(self, app_id, plugin_info, collect_period, retries=100):
+        	# set things up
         
-    def monitoring_application(self):
-        # monitoring logic
-        pass
-```
+    		def monitoring_application(self):
+        	# monitoring logic
+        	pass
+	  ```
 
 2. Edit the MonitorBuilder class adding a new condition to check the plugin name in the start_monitor. Instantiate the plugin in the conditional case.
-
-Example:
-```
-...
-elif plugin_name == "mynewmonitor":
-            plugin = MyNewMonitor(app_id, plugin_info, collect_period, retries=retries)
-...
-```
+* **Example**:
+	* ```
+		...
+		elif plugin_name == "mynewmonitor":
+	            plugin = MyNewMonitor(app_id, plugin_info, collect_period, retries=retries)
+		...
+		```
