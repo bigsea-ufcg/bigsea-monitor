@@ -13,12 +13,12 @@ This is an important step to enjoy all flexibility and features that this framew
 * **monitoring_application(self)**
 	* This method does every necessary step to calculate or capture the metric that must be published. If the metric will be stored into monasca, you must create an object monitor.monasca.manager.MonascaMonitor and use send_metrics([metrics]) to publish the metrics, where [metrics] is a list with the metrics you want to push into monasca and each metric is a dictionary with this following structure:
 
-	* ```
-metric = {'name':  'application-name.metric-namer'
-		   'value': value
-		   'timestamp': time.time() * 1000
-		   'dimensions': self.dimensions
-	```
+		* ```
+			metric = {'name':  'application-name.metric-namer'
+			   'value': value
+			   'timestamp': time.time() * 1000
+			   'dimensions': self.dimensions
+			```
 
 Example:
 
