@@ -17,8 +17,8 @@ This is an important step to enjoy all flexibility and features that this framew
 			   'value': value
 			   'timestamp': time.time() * 1000
 			   'dimensions': self.dimensions
-		   ```
-
+		 ```
+		   
 * **Example**:
 
 	* ```
@@ -30,7 +30,7 @@ This is an important step to enjoy all flexibility and features that this framew
     		def monitoring_application(self):
         	# monitoring logic
         	pass
-	```
+	  ```
 
 2. Edit the MonitorBuilder class adding a new condition to check the plugin name in the start_monitor. Instantiate the plugin in the conditional case.
 * **Example**:
