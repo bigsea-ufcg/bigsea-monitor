@@ -17,7 +17,7 @@ This is an important step to enjoy all flexibility and features that this framew
 			   'value': value
 			   'timestamp': time.time() * 1000
 			   'dimensions': self.dimensions
-		 ```
+		  ```
 		   
 * **Example**:
 
