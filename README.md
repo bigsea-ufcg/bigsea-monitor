@@ -1,9 +1,14 @@
-# BIGSEA Asperathos - Monitor
+# Asperathos - Monitor
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Overview
-The Monitor component is responsible for capturing, calculating and publishing applications metrics that will be used by the controller or load balance services.
+The **Monitor** is responsible for capturing, calculating and publishing applications metrics that will be used by the controller or load balance services.
 
-To more info about Monitor and how does it works in BIGSEA Asperathos environment, see [details.md](https://github.com/bigsea-ufcg/bigsea-monitor/tree/master/docs/details.md) and [asperathos-workflow.md](https://github.com/bigsea-ufcg/bigsea-monitor/tree/master/docs/asperathos-workflow.md).
+**Asperathos** was developed by the [**LSD-UFCG**](https://www.lsd.ufcg.edu.br/#/) *(Distributed Systems Laboratory at Federal University of Campina Grande)* as one of the existing tools in **EUBra-BIGSEA** ecosystem.
+
+**EUBra-BIGSEA** is committed to making a significant contribution to the **cooperation between Europe and Brazil** in the *area of advanced cloud services for Big Data applications*. See more about in [EUBra-BIGSEA website](http://www.eubra-bigsea.eu/).
+
+To more info about Monitor and how does it works in **BIGSEA Asperathos environment**, see [details.md](https://github.com/bigsea-ufcg/bigsea-monitor/tree/master/docs/details.md) and [asperathos-workflow.md](https://github.com/bigsea-ufcg/bigsea-monitor/tree/master/docs/asperathos-workflow.md).
 
 ## How does it works?
 The monitor is implemented following a **plugin architecture**, allowing the framework to monitor different types of application and different metrics of interest related to the QoS of the applications.
