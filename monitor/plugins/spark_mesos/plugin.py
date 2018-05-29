@@ -21,7 +21,7 @@ import paramiko
 import pytz
 import requests
 import tzlocal
-from monitor.utils.monasca.client import MonascaClient
+from monitor.utils.monasca.connector import MonascaConnector
 from monitor.plugins.base import Plugin
 from monitor import api as api
 
@@ -36,7 +36,7 @@ class SparkProgressUPV(Plugin):
         Plugin.__init__(self, app_id, info_plugin,
                         collect_period=5, retries=retries)
 
-        self.monasca = MonascaClient()
+        self.monasca = MonascaConnector()
 
         self.submission_url = info_plugin['spark_submisson_url']
         self.expected_time = info_plugin['expected_time']

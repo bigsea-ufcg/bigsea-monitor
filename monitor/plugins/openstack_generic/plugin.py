@@ -16,7 +16,7 @@
 import paramiko
 import time
 
-from monitor.utils.monasca.client import MonascaClient
+from monitor.utils.monasca.connector import MonascaConnector
 from monitor.plugins.base import Plugin
 
 
@@ -33,7 +33,7 @@ class OSGeneric(Plugin):
                            "host": self.host_ip}
         self.last_checked = ''
         self.start_time = time.time()
-        self.monasca = MonascaClient()
+        self.monasca = MonascaConnector()
 
     # This method extracts the value information from a log line
     # that contains the measurement for the interest metric

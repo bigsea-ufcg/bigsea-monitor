@@ -11,7 +11,7 @@ This is an important step to enjoy all flexibility and features that this framew
 	* **plugin_info**: it is a dictionary that contains all the information needed specifically for the plugin (e.g.: reference value for an application execution, the url for the service that will provide me the metrics or the path to the log file I need to read to capture the metrics and the host ip where this log is located).
 
 * **monitoring_application(self)**
-	* This method does every necessary step to calculate or capture the metric that must be published. If the metric will be stored into monasca, you must create an object monitor.monasca.manager.MonascaMonitor and use send_metrics([metrics]) to publish the metrics, where [metrics] is a list with the metrics you want to push into monasca and each metric is a dictionary with this following structure:
+	* This method does every necessary step to calculate or capture the metric that must be published. For example, if you will use monasca to gather and publish your metrics, you must create an object monitor.utils.monasca.MonascaClient and use send_metrics([metrics]) to publish the metrics, where [metrics] is a list with the metrics you want to push into monasca and each metric is a dictionary with this following structure: 
 		* ```
 			metric = {'name':  'application-name.metric-namer'
 			   'value': value

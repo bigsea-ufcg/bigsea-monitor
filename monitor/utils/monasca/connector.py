@@ -24,7 +24,7 @@ from monascaclient import client as monclient, ksclient
 from monitor.service import api
 
 
-class MonascaClient:
+class MonascaConnector:
     def __init__(self):
         self.monasca_username = api.monasca_username
         self.monasca_password = api.monasca_password
