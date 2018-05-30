@@ -22,19 +22,22 @@ import sys
 config = ConfigParser.RawConfigParser()
 config.read('./monitor.cfg')
 
+""" General configuration """
+address = config.get('general', 'host')
+port = config.getint('general', 'port')
+use_debug = config.get('general', 'debug')
+
+""" Monitor plugins parameters """
+retries = config.getint('plugins', 'retries')
+os_keypair = config.get('plugins', 'key_pair')
+mesos_cluster_addr = config.get('plugins', 'mesos_cluster_addr')
+mesos_password = config.get('plugins', 'mesos_password')
+mesos_username = config.get('plugins', 'mesos_username')
+
+""" Monasca parameters """
 monasca_endpoint = config.get('monasca', 'monasca_endpoint')
 monasca_username = config.get('monasca', 'username')
 monasca_password = config.get('monasca', 'password')
 monasca_auth_url = config.get('monasca', 'auth_url')
 monasca_project_name = config.get('monasca', 'project_name')
 monasca_api_version = config.get('monasca', 'api_version')
-
-retries = config.getint('service', 'retries')
-address = config.get('service', 'host')
-port = config.getint('service', 'port')
-use_debug = config.get('service', 'debug')
-
-os_keypair = config.get('credentials', 'key_pair')
-mesos_cluster_addr = config.get('credentials', 'mesos_cluster_addr')
-mesos_password = config.get('credentials', 'mesos_password')
-mesos_username = config.get('credentials', 'mesos_username')
