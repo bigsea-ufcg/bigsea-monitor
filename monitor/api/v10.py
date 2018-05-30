@@ -38,5 +38,5 @@ def start_monitoring(data, app_id):
     Error response codes: 400
 """
 @rest.put('/monitoring/<app_id>/stop')
-def stop_monitoring(data, app_id):
+def stop_monitoring(app_id, data):
     return u.render(api.stop_monitoring(app_id))

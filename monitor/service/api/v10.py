@@ -54,7 +54,7 @@ def start_monitoring(data, app_id):
 
 
 def stop_monitoring(app_id):
-    if app_id not in monitored_keys:
+    if app_id not in monitored_apps:
         API_LOG.log("App doesn't exist")
         raise ex.BadRequestException()
 
