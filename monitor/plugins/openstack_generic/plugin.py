@@ -92,8 +92,22 @@ class OSGeneric(Plugin):
             metric['timestamp'] = time.time() * 1000
             metric['dimensions'] = self.dimensions
 
+            time_progress_metric = {} 
+            time_progress_metric['name'] = 'application-progress.time_progress'
+            time_progress_metric['value'] = ref_value
+            time_progress_metric['timestamp'] = time.time() * 1000
+            time_progress_metric['dimensions'] = self.dimensions
+
+            app_progress_metric = {}
+            app_progress_metric['name'] = 'application-progress.app_progress'
+            app_progress_metric['value'] = measurement_value
+            app_progress_metric['timestamp'] = time.time() * 1000
+            app_progress_metric['dimensions'] = self.dimensions
+
             # Sending the metric to Monasca
-            self.monasca.send_metrics([metric])
+            self.monasca.send_metrics([metric, app_progress_metric,
+                                       time_progress_metric])
+
             print "Application progress error: %.4f" % error
 
         # Flag that checks if the log capture is ended
