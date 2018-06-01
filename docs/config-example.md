@@ -1,3 +1,7 @@
+# Config example
+
+## monitor.cfg: 
+```
 [monasca]
 # The endpoint for the Monasca's service.
 monasca_endpoint = http://<ip:port>
@@ -28,3 +32,4 @@ retries = 30
 [credentials]
 # Path to a private key associated with some OpenStack keypair
 key_pair = <path_to_private_key>
+```

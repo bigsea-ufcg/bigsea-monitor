@@ -13,17 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import monascaclient.exc as exc
+from monascaclient import exc
 import ConfigParser
 import os
 import sys
+import requests
+import json
 
 from monascaclient import client as monclient, ksclient
-from monitor import api
+from monitor.service import api
 
 
-class MonascaMonitor:
-
+class MonascaConnector:
     def __init__(self):
         self.monasca_username = api.monasca_username
         self.monasca_password = api.monasca_password
@@ -33,7 +34,9 @@ class MonascaMonitor:
         self._get_monasca_client()
 
 
-    def get_measurements(self, metric_name, dimensions, start_time='2014-01-01T00:00:00Z'):
+    def get_measurements(self, metric_name, dimensions,
+                         start_time='2014-01-01T00:00:00Z'):
+
         measurements = []
         try:
             monasca_client = self._get_monasca_client()
@@ -52,12 +55,16 @@ class MonascaMonitor:
             return None
 
     def first_measurement(self, name, dimensions):
-        return [None, None, None] if self.get_measurements(name, dimensions) is None \
-            else self.get_measurements(name, dimensions)[0]
+        return (
+            [None, None, None]
+            if self.get_measurements(name, dimensions) is None
+            else self.get_measurements(name, dimensions)[0])
 
     def last_measurement(self, name, dimensions):
-        return [None, None, None] if self.get_measurements(name, dimensions) is None \
-            else self.get_measurements(name, dimensions)[-1]
+        return (
+            [None, None, None]
+            if self.get_measurements(name, dimensions) is None
+            else self.get_measurements(name, dimensions)[-1])
 
     def _get_monasca_client(self):
 
@@ -71,7 +78,8 @@ class MonascaMonitor:
         )
 
         # Monasca Client
-        monasca_client = monclient.Client(self.monasca_api_version, ks.monasca_url,
+        monasca_client = monclient.Client(self.monasca_api_version,
+                                          ks.monasca_url,
                                           token=ks.token,
                                           debug=False)
 

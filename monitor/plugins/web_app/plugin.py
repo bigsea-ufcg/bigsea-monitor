@@ -16,14 +16,14 @@
 import paramiko
 import time
 
-from monitor.monasca.manager import MonascaMonitor
+from monitor.utils.monasca.connector import MonascaConnector
 from monitor.plugins.base import Plugin
 
 
 class WebAppMonitor(Plugin):
 
-    def __init__(self, app_id, info_plugin, collect_period, keypair, retries=60):
-        Plugin.__init__(self, app_id, info_plugin, collect_period, retries=retries)
+    def __init__(self, app_id, info_plugin, keypair, retries=60):
+        Plugin.__init__(self, app_id, info_plugin, collect_period=5, retries=retries)
         self.app_id = app_id
         self.host_ip = info_plugin['host_ip']
         self.keypair_path = keypair
@@ -31,7 +31,7 @@ class WebAppMonitor(Plugin):
         self.log_path = info_plugin['log_path']
         self.dimensions = {'app_id': self.app_id, 'host': self.host_ip}
         self.last_checked = ''
-        self.monasca = MonascaMonitor()
+        self.monasca = MonascaConnector()
 
     def _get_metric_value(self, log):
         value = None

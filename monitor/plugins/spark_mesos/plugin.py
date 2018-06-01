@@ -16,24 +16,27 @@
 import time
 from datetime import datetime
 
+import json
+import paramiko
 import pytz
 import requests
 import tzlocal
-from monitor.monasca.manager import MonascaMonitor
+from monitor.utils.monasca.connector import MonascaConnector
 from monitor.plugins.base import Plugin
+from monitor import api as api
 
 LOG_FILE = "progress.log"
 TIME_PROGRESS_FILE = "time_progress.log"
 MONITORING_INTERVAL = 2
 
 
-class SparkProgress(Plugin):
+class SparkProgressUPV(Plugin):
 
-    def __init__(self, app_id, info_plugin, collect_period, retries=60):
+    def __init__(self, app_id, info_plugin, retries=60):
         Plugin.__init__(self, app_id, info_plugin,
-                        collect_period, retries=retries)
+                        collect_period=5, retries=retries)
 
-        self.monasca = MonascaMonitor()
+        self.monasca = MonascaConnector()
 
         self.submission_url = info_plugin['spark_submisson_url']
         self.expected_time = info_plugin['expected_time']
@@ -47,13 +50,19 @@ class SparkProgress(Plugin):
         self.dimensions = {'application_id': self.app_id,
                            'service': 'spark-sahara'}
 
+        self.conn = paramiko.SSHClient()
+        self.conn.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        self.conn.connect(hostname=api.mesos_cluster_addr,
+                          username=api.mesos_username,
+                          password=api.mesos_password)
 
-    def _publish_measurement(self, job_request):
+        self.spark_id = self._discover_id_from_spark()
+
+    def _publish_measurement(self, jobs):
 
         application_progress_error = {}
 
         # Init
-        jobs = job_request.json()
         jobs.reverse()
 
         if not len(jobs) == 0:
@@ -120,12 +129,29 @@ class SparkProgress(Plugin):
 
         return elapsed_time.seconds
 
+    def _discover_id_from_spark(self):
+        for i in range(30):
+            i, o, e = self.conn.exec_command('curl %s/api/v1/applications' % self.submission_url)
+            applications_running = json.loads(o.read())
+
+            for app in applications_running:
+                if app['name'] == self.app_id:
+                    return app['id']
+
+            time.sleep(1)
+
+        return None
+
+    def _get_progress(self, spark_id):
+        i, o, e = self.conn.exec_command('curl %s/api/v1/applications/%s/jobs'
+                                         % (self.submission_url,
+                                            spark_id))
+
+        return json.loads(o.read())
 
     def monitoring_application(self):
         try:
-            job_request = requests.get(self.submission_url
-                          + ':4040/api/v1/applications/'
-                          + self.app_id + '/jobs')
+            job_request = self._get_progress(self.spark_id)
 
             self._publish_measurement(job_request)
 

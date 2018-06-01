@@ -13,7 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from monitor import api
-from monitor.cli import *
+from flask import Flask
+from monitor.api.v10 import rest
+from monitor.service import api
 
-main(api.host_address, api.host_port, api.use_debug)
+
+def main():
+    app = Flask(__name__)
+    app.register_blueprint(rest)
+    app.run(host='0.0.0.0', port=api.port, debug=True)

@@ -3,4 +3,6 @@
 .idea/
 *.cfg
 *.tox
+.*.swp
 bigsea_key
+*.egg-info/

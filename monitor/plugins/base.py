@@ -22,25 +22,35 @@ class Plugin(threading.Thread):
 
     def __init__(self, app_id, info_plugin, collect_period, retries=30):
         threading.Thread.__init__(self)
+
         # Contains all the specific information for each plugin
         self.info_plugin = info_plugin
+
         # Flag that enable or disable the monitoring logic execution
         self.running = False
-        # Dimensions is composed by default only application_id, but for each plugin
-        # it can change and it is possible to add some relevant information
+
+        # Dimensions is composed by default only application_id, but for each
+        # plugin it can change and it is possible to add some relevant
+        # information
         self.dimensions = {'application_id': app_id}
+
         # Time interval between each metric collect
         self.collect_period = collect_period
-        # How many times monitoring_application must be re executed when something break into the execution
+
+        # How many times monitoring_application must be re executed when
+        # something break into the execution
         self.attempts = retries
+
         # The identifier for the submitted application
         self.app_id = app_id
 
     def stop(self):
-        print "The %s is stopping for %s..." % (type(self).__name__, self.app_id)
+        print "The %s is stopping for %s..." % (type(self).__name__,
+                                                self.app_id)
         self.running = False
 
-    # This method must be subscribed by each plugin that extends this base class
+    # This method must be subscribed by each plugin that
+    # extends this base class
     def monitoring_application(self):
         pass
 

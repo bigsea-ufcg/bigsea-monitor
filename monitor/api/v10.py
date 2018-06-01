@@ -14,30 +14,29 @@
 # limitations under the License.
 
 from flask import request
-from monitor.api.controller import Controller
+from monitor.service.api import v10 as api
 
-import monitor.utils.api as api_util
-
-rest_api = api_util.Rest('v1', __name__)
-monitor = Controller()
-
-START = '/start/<app_id>'
-STOP = '/stop/<app_id>'
+from monitor.utils import api as u
 
 
-@rest_api.post(START)
-def start(data, app_id):
-    data = request.json
-    print data
-    plugin = data['plugin']
-    info_plugin = data['info_plugin'] or None
-    collect_period = data['collect_period']
-    monitor.start_monitor(plugin, app_id, info_plugin, collect_period)
-    return "ok"
+rest = u.Rest('v10', __name__)
 
 
-@rest_api.post(STOP)
-def stop(data, app_id):
-    monitor.kill_monitor(app_id)
+""" Start monitoring a running application.
 
-    return "ok"
+    Normal response codes: 202
+    Error response codes: 400
+"""
+@rest.post('/monitoring/<app_id>')
+def start_monitoring(data, app_id):
+    return u.render(api.start_monitoring(data, app_id))
+
+
+""" Stop monitoring a running application.
+
+    Normal response codes: 204
+    Error response codes: 400
+"""
+@rest.put('/monitoring/<app_id>/stop')
+def stop_monitoring(app_id, data):
+    return u.render(api.stop_monitoring(app_id))
