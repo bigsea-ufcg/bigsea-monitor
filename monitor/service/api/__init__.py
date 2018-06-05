@@ -25,14 +25,17 @@ config.read('./monitor.cfg')
 """ General configuration """
 address = config.get('general', 'host')
 port = config.getint('general', 'port')
+plugins = config.get('general', 'plugins').split(',')
 use_debug = config.get('general', 'debug')
 
-""" Monitor plugins parameters """
-retries = config.getint('plugins', 'retries')
-os_keypair = config.get('plugins', 'key_pair')
-mesos_cluster_addr = config.get('plugins', 'mesos_cluster_addr')
-mesos_password = config.get('plugins', 'mesos_password')
-mesos_username = config.get('plugins', 'mesos_username')
+if 'openstack_generic' in plugins:
+    retries = config.getint('openstack_generic', 'retries')
+    os_keypair = config.get('openstack_generic', 'key_pair')
+
+if 'spark_mesos' in plugins:
+    mesos_cluster_addr = config.get('spark_mesos', 'mesos_cluster_addr')
+    mesos_password = config.get('spark_mesos', 'mesos_password')
+    mesos_username = config.get('spark_mesos', 'mesos_username')
 
 """ Monasca parameters """
 monasca_endpoint = config.get('monasca', 'monasca_endpoint')
