@@ -23,7 +23,7 @@ See [plugin-development.md](https://github.com/bigsea-ufcg/bigsea-monitor/tree/m
 * Linux packages: python-dev and python-pip
 * Python packages: setuptools, tox and flake8
 
-To **apt** distros, you can use [pre-install.sh](https://github.com/bigsea-ufcg/bigsea-monitor/tree/master/tools/pre-install.sh) to install the requirements.
+To **apt** distros, you can use [pre-install.sh](https://github.com/bigsea-ufcg/bigsea-monitor/tree/master/pre-install.sh) to install the requirements.
 
 ## Install
 Clone the [Monitor repository](https://github.com/bigsea-ufcg/bigsea-monitor.git) in your machine.
