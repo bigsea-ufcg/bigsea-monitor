@@ -32,7 +32,6 @@ class MonascaMonitor:
         self.monasca_api_version = api.monasca_api_version
         self._get_monasca_client()
 
-
     def get_measurements(self, metric_name, dimensions, start_time='2014-01-01T00:00:00Z'):
         measurements = []
         try:
