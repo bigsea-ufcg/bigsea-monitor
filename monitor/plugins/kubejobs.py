@@ -13,14 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import time
-from datetime import datetime
-
-import pytz
+import redis
 import requests
-import tzlocal
-from monitor.monasca.manager import MonascaMonitor
+import time
+import subprocess
+from subprocess import PIPE
+
+from datetime import datetime
+from monitor.metric_source.monasca import MonascaMonitor
 from monitor.plugins.base import Plugin
+
+import kubernetes
 
 LOG_FILE = "progress.log"
 TIME_PROGRESS_FILE = "time_progress.log"
@@ -28,55 +31,64 @@ MONITORING_INTERVAL = 2
 
 
 class KubeJobProgress(Plugin):
-    def __init__(self, app_id, info_plugin, collect_period=2, retries=60):
+
+    def __init__(self, app_id, info_plugin, collect_period=2, retries=10):
         Plugin.__init__(self, app_id, info_plugin,
                         collect_period, retries=retries)
 
-        self.monasca = MonascaMonitor()
+        self.enable_monasca = info_plugin['graphic_metrics']
+        if self.enable_monasca:
+            self.monasca = MonascaMonitor()
 
         self.submission_url = info_plugin['count_jobs_url']
+        # print self.submission_url
         self.expected_time = int(info_plugin['expected_time'])
         self.number_of_jobs = int(info_plugin['number_of_jobs'])
         self.submission_time = datetime.strptime(info_plugin['submission_time'],
                                                  '%Y-%m-%dT%H:%M:%S.%fGMT')
         self.dimensions = {'application_id': self.app_id,
                            'service': 'kubejobs'}
-
+        # print info_plugin['redis_ip'], info_plugin['redis_port']
+        self.rds = redis.StrictRedis(host=info_plugin['redis_ip'],
+                                     port=info_plugin['redis_port'])
+        self.metric_queue = "%s:metrics" % self.app_id
         self.current_job_id = 0
 
     def _publish_measurement(self, job_request):
 
-
         application_progress_error = {}
         job_progress_error = {}
         time_progress_error = {}
+        cluster_size = {}
+        parallelism = {}
 
         # Init
         jobs_completed = int(job_request.json())
-        print "Completed: %i" % jobs_completed
+        print "Jobs Completed: %i" % jobs_completed
 
         # Job Progress
 
-        job_progress = (float(jobs_completed) / self.number_of_jobs)
+        job_progress = min(1.0, (float(jobs_completed) / self.number_of_jobs))
 
         # Elapsed Time
         elapsed_time = float(self._get_elapsed_time())
 
         # Reference Value
         ref_value = (elapsed_time / self.expected_time)
-
+        replicas = self._get_num_replicas()
         # Error
-        print "\nJob progress: %s\nRef_value: %s\n" % (job_progress, ref_value)
+        print "Job progress: %s\Time Progress: %s\nReplicas: %s" \
+                        "\n========================" \
+                        % (job_progress, ref_value, replicas)
+
         error = job_progress - ref_value
 
         application_progress_error['name'] = ('application-progress'
                                               '.error')
 
-        job_progress_error['name'] = ('job-progress'
-                                              '.error')
+        job_progress_error['name'] = 'job-progress'
 
-        time_progress_error['name'] = ('time-progress'
-                                              '.error')
+        time_progress_error['name'] = 'time-progress'
 
         application_progress_error['value'] = error
         application_progress_error['timestamp'] = time.time() * 1000
@@ -90,31 +102,58 @@ class KubeJobProgress(Plugin):
         time_progress_error['timestamp'] = time.time() * 1000
         time_progress_error['dimensions'] = self.dimensions
 
-        print application_progress_error['value']
+        cluster_size['name'] = "cluster_size"
+        cluster_size['value'] = self._get_cluster_size()
+        cluster_size['timestamp'] = time.time() * 1000
+        cluster_size['dimensions'] = self.dimensions
 
-        self.monasca.send_metrics([application_progress_error])
-        self.monasca.send_metrics([job_progress_error])
-        self.monasca.send_metrics([time_progress_error])
+        parallelism['name'] = "job-parallelism"
+        parallelism['value'] = replicas
+        parallelism['timestamp'] = time.time() * 1000
+        parallelism['dimensions'] = self.dimensions
+
+
+        print "Error: %s " % application_progress_error['value']
+
+        self.rds.rpush(self.metric_queue,
+                       application_progress_error)
+
+        if self.enable_monasca:
+            self.monasca.send_metrics([application_progress_error])
+            self.monasca.send_metrics([job_progress_error])
+            self.monasca.send_metrics([time_progress_error])
+            self.monasca.send_metrics([cluster_size])
+            self.monasca.send_metrics([parallelism])
 
 
         time.sleep(MONITORING_INTERVAL)
 
+    def _get_cluster_size(self):
+
+        bash_command = 'kubectl get nodes'
+        p = subprocess.Popen(bash_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
+        o, e = p.communicate()
+
+        
+        lines = o.split('\n')
+        nodes = {}
+
+        for l in lines:
+            if len(l) > 0 and "NAME" not in l:
+                nodes[l.split()[0]] = 0
+
+        return len(nodes)-1
+
+    def _get_num_replicas(self):
+        kubernetes.config.load_kube_config()
+
+        b_v1 = kubernetes.client.BatchV1Api()
+
+        job = b_v1.read_namespaced_job(name = self.app_id, namespace="default")
+        return job.status.active
+
     def _get_elapsed_time(self):
-        try:
-            local_tz = tzlocal.get_localzone()
-            print local_tz
-
-        except Exception as e:
-            print e.message
-            local_tz = "America/Recife"
-            local_tz = pytz.timezone(local_tz)
-
-        print "Submission time: %s" % self.submission_time
-        # init_time = self.submission_time
-        # init_time = init_time.replace(tzinfo=pytz.utc).astimezone(local_tz)
-        # init_time = init_time.replace(tzinfo=None)
         datetime_now = datetime.now()
-        print "Time now: %s" % str(datetime_now)
         elapsed_time = datetime_now - self.submission_time
         print "Elapsed Time: %.2f" % elapsed_time.seconds
 
@@ -122,8 +161,8 @@ class KubeJobProgress(Plugin):
 
     def monitoring_application(self):
         try:
-            job_request = requests.get(self.submission_url +
-                                       '/%s:results/count' % self.app_id)
+            job_request = requests.get('%s/redis-%s/job:results/count' % (self.submission_url,
+                                                                          self.app_id))
 
             self._publish_measurement(job_request)
 
